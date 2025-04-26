@@ -9,6 +9,29 @@ const userSchema = new mongoose.Schema(
     profileImageUrl: {
       type: String,
     },
+    baseID: {
+      type: String,
+      required: true,
+    },
+  },
+  {
+    strict: "throw",
+  }
+);
+
+const requestSchema = new mongoose.Schema(
+  {
+    name: {
+      type: String,
+      required: true,
+    },
+    phNum: {
+      type: String,
+      required: true,
+    },
+    profileImageUrl: {
+      type: String,
+    },
   },
   {
     strict: "throw",
@@ -23,40 +46,72 @@ const rideSchema = new mongoose.Schema(
     },
     typeOfVeh: {
       type: String,
+      required: true,
       enum: ["Car", "Bike"],
     },
     nuSeats: {
       type: Number,
       default: 0,
     },
-    start: {
-      type: String,
-      required: true,
+    startLocation: {
+      type: {
+        type: String,
+        enum: ["Point"], // must be ‘Point’
+        default: "Point",
+      },
+      coordinates: {
+        type: [Number], // [ <longitude>, <latitude> ]
+        required: true,
+      },
     },
+
     end: {
-      type: String,
-      required: true,
+      type: {
+        type: String,
+        enum: ["Point"], // must be ‘Point’
+        default: "Point",
+      },
+      coordinates: {
+        type: [Number], // [ <longitude>, <latitude> ]
+        required: true,
+      },
     },
     time: {
       type: Date,
       required: true,
     },
-    isRideActive:{
+    requests: {
+      type: [requestSchema],
+    },
+    isRideActive: {
       type: Boolean,
-      default: true
-    }
+      default: true,
+    },
   },
   {
     strict: "throw",
+
+    timestamps: true,
   }
 );
+
+// Geospatial index for radius‐searches
+rideSchema.index({ startLocation: "2dsphere" });
+
+// Compound index to speed up “active rides sorted by time”
+rideSchema.index({ isRideActive: 1, time: 1 });
+
+rideSchema.index({ rideId: 1 }, { unique: true });
+
+
+
 
 const ridesSchema = new mongoose.Schema(
   {
     userData: userSchema,
     ride: {
       type: [rideSchema],
-    }
+    },
   },
   {
     strict: "throw",
@@ -64,5 +119,10 @@ const ridesSchema = new mongoose.Schema(
 );
 
 const Rides = mongoose.model("rides", ridesSchema);
+
+Rides.on('index', err => {
+  if (err) console.error('Index build error:', err);
+});
+
 
 module.exports = Rides;

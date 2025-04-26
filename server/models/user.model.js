@@ -14,6 +14,10 @@ const userSchema = new mongoose.Schema(
       required: true,
       unique: true,
     },
+    phNum: {
+      type: String,
+      required: true,
+    },
     profileImageUrl: {
       type: String,
     },
