@@ -5,16 +5,23 @@ import { createRoot } from "react-dom/client";
 // import "bootstrap/dist/js/bootstrap.bundle.js";
 
 import "./index.css";
-import { createBrowserRouter, RouterProvider, Navigate } from "react-router-dom";
+import {
+  createBrowserRouter,
+  RouterProvider,
+  Navigate,
+} from "react-router-dom";
 import RootLayout from "./components/RootLayout";
 import Home from "./components/common/Home";
-import SignIn from "./components/auth/SignIn";
-import SignUp from "./components/auth/SignUp";
+import Signin from "./components/auth/SignIn";
+import Signup from "./components/auth/SignUp";
 import UserProfile from "./components/common/UserProfile";
 import CreateRide from "./components/rider/CreateRide";
 import MyRides from "./components/rider/MyRides";
 import RideList from "./components/user/RideList";
 import Current from "./components/user/Current";
+import UserContext from "./components/contexts/userContext";
+import Notifications from "./components/common/Notifications"
+import { PrimeReactProvider, PrimeReactContext } from "primereact/api";
 
 const browserRouterObj = createBrowserRouter(
   [
@@ -28,11 +35,15 @@ const browserRouterObj = createBrowserRouter(
         },
         {
           path: "signin",
-          element: <SignIn />,
+          element: <Signin />,
         },
         {
           path: "signup",
-          element: <SignUp />,
+          element: <Signup />,
+        },
+        {
+          path: "noti",
+          element: <Notifications />,
         },
         {
           path: "rider/:email",
@@ -82,11 +93,13 @@ const browserRouterObj = createBrowserRouter(
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
-    <RouterProvider
-      router={browserRouterObj}
-      future={{
-        v7_startTransition: true,
-      }}
-    />
+    <UserContext>
+      <RouterProvider
+        router={browserRouterObj}
+        future={{
+          v7_startTransition: true,
+        }}
+      />
+    </UserContext>
   </StrictMode>
 );

@@ -11,6 +11,18 @@ require("dotenv").config();
 //creating user
 userApp.post("/user", expressAsyncHandler(createUser));
 
+userApp.get("/find", expressAsyncHandler(async (req, res)=>{
+  const { email } = req.query;
+  const userInDb = await User.findOne({ email: email });
+  if (userInDb !== null) {
+    res.status(200).send({ message: true, payload: userInDb });
+  } else {
+    res
+      .status(200)
+      .send({ message: false});
+  }
+}))
+
 //creating ride
 userApp.post(
   "/riding",
