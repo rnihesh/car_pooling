@@ -1,10 +1,92 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import './index.css'
-import App from './App.jsx'
+import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
 
-createRoot(document.getElementById('root')).render(
+// import "bootstrap/dist/css/bootstrap.css";
+// import "bootstrap/dist/js/bootstrap.bundle.js";
+
+import "./index.css";
+import { createBrowserRouter, RouterProvider, Navigate } from "react-router-dom";
+import RootLayout from "./components/RootLayout";
+import Home from "./components/common/Home";
+import SignIn from "./components/auth/SignIn";
+import SignUp from "./components/auth/SignUp";
+import UserProfile from "./components/common/UserProfile";
+import CreateRide from "./components/rider/CreateRide";
+import MyRides from "./components/rider/MyRides";
+import RideList from "./components/user/RideList";
+import Current from "./components/user/Current";
+
+const browserRouterObj = createBrowserRouter(
+  [
+    {
+      path: "/",
+      element: <RootLayout />,
+      children: [
+        {
+          path: "/",
+          element: <Home />,
+        },
+        {
+          path: "signin",
+          element: <SignIn />,
+        },
+        {
+          path: "signup",
+          element: <SignUp />,
+        },
+        {
+          path: "rider/:email",
+          element: <UserProfile />,
+          children: [
+            {
+              path: "my",
+              element: <MyRides />,
+            },
+            {
+              path: "ride",
+              element: <CreateRide />,
+            },
+            {
+              path: "",
+              element: <Navigate to="my" />,
+            },
+          ],
+        },
+        {
+          path: "user/:email",
+          element: <UserProfile />,
+          children: [
+            {
+              path: "rides",
+              element: <RideList />,
+            },
+            {
+              path: "current",
+              element: <Current />,
+            },
+            {
+              path: "",
+              element: <Navigate to="rides" />,
+            },
+          ],
+        },
+      ],
+    },
+  ],
+  {
+    future: {
+      v7_relativeSplatPath: true,
+    },
+  }
+);
+
+createRoot(document.getElementById("root")).render(
   <StrictMode>
-    <App />
-  </StrictMode>,
-)
+    <RouterProvider
+      router={browserRouterObj}
+      future={{
+        v7_startTransition: true,
+      }}
+    />
+  </StrictMode>
+);
