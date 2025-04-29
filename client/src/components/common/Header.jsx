@@ -9,10 +9,11 @@ import { userContextObj } from "../contexts/userContext";
 function Header() {
   const { signOut } = useClerk();
   const { isSignedIn, user } = useUser();
-  console.log(user);
+  // console.log(user);
   const { currentUser, setCurrentUser } = useContext(userContextObj);
   const navigate = useNavigate();
   const location = useLocation();
+  console.log("currentUser from header: ",currentUser)
 
   async function handleSignout() {
     await signOut();
@@ -21,6 +22,7 @@ function Header() {
     setCurrentUser(null);
     navigate("/");
   }
+  
 
   return (
     <nav className="d-flex justify-content-between align-items-center p-2 shadow-sm bg-light flex-wrap">

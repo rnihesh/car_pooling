@@ -32,6 +32,10 @@ const requestSchema = new mongoose.Schema(
     profileImageUrl: {
       type: String,
     },
+    request:{
+      type: Boolean,
+      default: false
+    }
   },
   {
     strict: "throw",
@@ -53,28 +57,13 @@ const rideSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
-    startLocation: {
-      type: {
-        type: String,
-        enum: ["Point"], // must be ‘Point’
-        default: "Point",
-      },
-      coordinates: {
-        type: [Number], // [ <longitude>, <latitude> ]
-        required: true,
-      },
+    start: {
+      type: { type: String, enum: ["Point"], default: "Point" },
+      coordinates: { type: [Number], required: true },
     },
-
     end: {
-      type: {
-        type: String,
-        enum: ["Point"], // must be ‘Point’
-        default: "Point",
-      },
-      coordinates: {
-        type: [Number], // [ <longitude>, <latitude> ]
-        required: true,
-      },
+      type: { type: String, enum: ["Point"], default: "Point" },
+      coordinates: { type: [Number], required: true },
     },
     time: {
       type: Date,
@@ -96,15 +85,13 @@ const rideSchema = new mongoose.Schema(
 );
 
 // Geospatial index for radius‐searches
-rideSchema.index({ startLocation: "2dsphere" });
+rideSchema.index({ start: "2dsphere" });
+rideSchema.index({ end: "2dsphere" });
 
 // Compound index to speed up “active rides sorted by time”
 rideSchema.index({ isRideActive: 1, time: 1 });
 
 rideSchema.index({ rideId: 1 }, { unique: true });
-
-
-
 
 const ridesSchema = new mongoose.Schema(
   {
@@ -120,9 +107,8 @@ const ridesSchema = new mongoose.Schema(
 
 const Rides = mongoose.model("rides", ridesSchema);
 
-Rides.on('index', err => {
-  if (err) console.error('Index build error:', err);
+Rides.on("index", (err) => {
+  if (err) console.error("Index build error:", err);
 });
-
 
 module.exports = Rides;

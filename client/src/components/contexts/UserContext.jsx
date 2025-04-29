@@ -7,7 +7,8 @@ function UserContext({ children }) {
     lastName: "",
     email: "",
     profileImageUrl: "",
-    role: ""
+    role: "",
+    baseID:""
   });
 
   useEffect(() => {

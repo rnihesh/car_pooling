@@ -9,8 +9,8 @@ import Squares from "../../components/ui/Squares/Squares";
 import DecryptedText from "../../components/ui/DecryptedText/DecryptedText";
 import { userContextObj } from "../contexts/userContext";
 import { getBaseUrl } from "../../utils/config";
-import rider from "../../assets/rider.svg"
-import userIcon from "../../assets/user.svg"
+import rider from "../../assets/rider.svg";
+import userIcon from "../../assets/user.svg";
 
 function Home() {
   const { currentUser, setCurrentUser } = useContext(userContextObj);
@@ -20,53 +20,67 @@ function Home() {
   const [showPhoneModal, setShowPhoneModal] = useState(false);
   const [phoneInput, setPhoneInput] = useState("");
   const navigate = useNavigate();
-
   // Initialize context from Clerk user
   useEffect(() => {
     if (isLoaded && user) {
-      setCurrentUser({
-        ...currentUser,
-        firstName: user.firstName || "",
-        lastName: user.lastName || "",
-        email: user.emailAddresses[0]?.emailAddress || "",
-        profileImageUrl: user.imageUrl || "",
-      });
+      setCurrentUser((prev) => ({
+        ...prev,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.emailAddresses[0]?.emailAddress,
+        profileImageUrl: user.imageUrl,
+        role: prev.role, // carry over whatever role was
+        baseID: prev.baseID, // carry ID too
+        // …and any other custom fields…
+      }));
     }
   }, [isLoaded, user]);
+  useEffect(() => {
+    console.log("currentUser updated: ", currentUser);
+  }, [currentUser]);
 
-  // Helper: check if user exists in your DB
+  // 1) Helper: returns true if user exists (and sets baseID in context)
   async function checkUserExists(email) {
     try {
       const res = await axios.get(`${getBaseUrl()}/user/find`, {
         params: { email },
       });
-      return res.data.message; 
-    } catch {
+      const exists = res.data.message === true;
+      if (exists) {
+        // grab the Mongo _id and stash it
+        const id = res.data.payload._id;
+        setCurrentUser((prev) => ({ ...prev, baseID: id }));
+      }
+      return exists;
+    } catch (err) {
+      console.error("checkUserExists error:", err);
       return false;
     }
   }
 
-  // Called when they click Rider/User
+  // 2) onSelectRole: uses that helper
   async function onSelectRole(e) {
     setError("");
     const selectedRole = e.target.value;
-    const updated = { ...currentUser, role: selectedRole };
-    setCurrentUser(updated);
 
-    // 1) see if they already exist
-    const exists = await checkUserExists(updated.email);
+    // Update role in context
+    setCurrentUser((prev) => ({ ...prev, role: selectedRole }));
+
+    // See if the user is already in your DB
+    const exists = await checkUserExists(currentUser.email);
+    console.log("exists:", exists);
 
     if (!exists) {
-      // 2) if they don't and we have no phone yet → ask for phone
-      if (!updated.phNum) {
+      // New user → need phone first
+      if (!currentUser.phNum) {
         setShowPhoneModal(true);
         return;
       }
-      // 3) otherwise create
-      await createAndSave(updated);
+      // then create in DB
+      await createAndSave({ ...currentUser, role: selectedRole });
     } else {
-      // already exists → just save context & LS, then navigate
-      finalizeLogin(updated);
+      // Existing user → carry baseID + role through
+      finalizeLogin({ ...currentUser, role: selectedRole });
     }
   }
 
@@ -91,6 +105,7 @@ function Home() {
   // save to context, localStorage & navigate
   function finalizeLogin(userObj) {
     setCurrentUser(userObj);
+    console.log("userObj from finalizeLogin : ", userObj);
     localStorage.setItem("currentuser", JSON.stringify(userObj));
     if (userObj.role === "user") {
       navigate(`user/${userObj.email}`);
@@ -176,7 +191,10 @@ function Home() {
 
       {isSignedIn && (
         <div className="d-flex justify-content-center vov">
-          <div className="user-section p-5 rounded-5 w-100 border" style={{margin: "100px", }}>
+          <div
+            className="user-section p-5 rounded-5 w-100 border"
+            style={{ margin: "100px" }}
+          >
             <div className="user-info2 d-flex flex-column flex-md-row justify-content-center align-items-center p-4 rounded-3 mb-4">
               <img
                 src={user.imageUrl}
@@ -214,7 +232,7 @@ function Home() {
                       alt={`${r} icon`}
                       className="mb-2"
                       width="100px"
-                      src={r === "rider" ? rider: userIcon}
+                      src={r === "rider" ? rider : userIcon}
                     />
                     <span style={{ fontWeight: "bolder" }}>
                       {r.charAt(0).toUpperCase() + r.slice(1)}
@@ -266,13 +284,16 @@ function Home() {
               <button type="submit" className="btn btn-outline-primary">
                 Continue
               </button>
-              
             </div>
-            
           </form>
           {error && (
-                <p className="text-danger text-center fs-5 font-monospace" style={{marginTop: "100px"}}>{error}</p>
-              )}
+            <p
+              className="text-danger text-center fs-5 font-monospace"
+              style={{ marginTop: "100px" }}
+            >
+              {error}
+            </p>
+          )}
         </div>
       </div>
     </div>

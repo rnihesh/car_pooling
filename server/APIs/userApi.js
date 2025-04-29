@@ -11,17 +11,18 @@ require("dotenv").config();
 //creating user
 userApp.post("/user", expressAsyncHandler(createUser));
 
-userApp.get("/find", expressAsyncHandler(async (req, res)=>{
-  const { email } = req.query;
-  const userInDb = await User.findOne({ email: email });
-  if (userInDb !== null) {
-    res.status(200).send({ message: true, payload: userInDb });
-  } else {
-    res
-      .status(200)
-      .send({ message: false});
-  }
-}))
+userApp.get(
+  "/find",
+  expressAsyncHandler(async (req, res) => {
+    const { email } = req.query;
+    const userInDb = await User.findOne({ email: email });
+    if (userInDb !== null) {
+      res.status(200).send({ message: true, payload: userInDb });
+    } else {
+      res.status(200).send({ message: false });
+    }
+  })
+);
 
 //creating ride
 userApp.post(
@@ -117,12 +118,15 @@ userApp.put(
       return res.status(400).json({ message: "No seats available" });
     }
 
+    rideToUpdate.nuSeats -= 1;
     rideToUpdate.requests.push({
       name: user.firstName,
       phNum: user.phNum,
       profileImageUrl: user.profileImageUrl || "",
     });
+    console.log("ride to update", rideToUpdate);
 
+    console.log(rideDoc);
     await rideDoc.save();
 
     await User.findByIdAndUpdate(userId, { $inc: { nuRides: 1 } });
@@ -132,35 +136,124 @@ userApp.put(
 );
 
 //rides which are near using geo
-userApp.post(
+userApp.get(
   "/rides/near",
   expressAsyncHandler(async (req, res) => {
-    const { lng, lat, maxDistKm = 5 } = req.body;
-    const maxDistance = Number(maxDistKm) * 1000; // meters
-
-    const results = await Rides.aggregate([
-      { $unwind: "$ride" },
-      { $match: { "ride.isRideActive": true } },
-      { $geoNear: {
-          near: { type: "Point", coordinates: [ +lng, +lat ] },
-          distanceField: "ride.distance",
-          maxDistance,
-          spherical: true,
-          key: "ride.startLocation"
-        }
-      },
-      { $sort: { "ride.time": 1 } },
-      { $group: {
-          _id: "$_id",
-          userData: { $first: "$userData" },
-          rides:   { $push: "$ride" }
+    const { lng, lat, maxDistKm = 100, locType = "start" } = req.query;
+    
+    if (!lng || !lat) {
+      return res.status(400).send({ message: "please provide ?lng&lat" });
+    }
+    
+    // Parse coordinates to floats
+    const longitude = parseFloat(lng);
+    const latitude = parseFloat(lat);
+    
+    if (isNaN(longitude) || isNaN(latitude)) {
+      return res.status(400).send({ message: "Invalid coordinate values" });
+    }
+    
+    const geoField = locType === "start" ? "ride.start" : "ride.end";
+    const maxDistance = Number(maxDistKm) * 1000;
+    
+    try {
+      // Fixed aggregation pipeline
+      const results = await Rides.aggregate([
+        {
+          $geoNear: {
+            near: {
+              type: "Point",
+              coordinates: [longitude, latitude],
+            },
+            distanceField: "distance", // Note: Changed from ride.distance
+            key: geoField,
+            maxDistance,
+            spherical: true,
+          },
+        },
+        // Unwind the ride array to work with individual rides
+        { $unwind: "$ride" },
+        // Filter to only include active rides
+        { $match: { "ride.isRideActive": true } },
+        // Sort by time
+        { $sort: { "ride.time": 1 } },
+        // Group back by original document ID
+        {
+          $group: {
+            _id: "$_id",
+            userData: { $first: "$userData" },
+            rides: { $push: "$ride" }, // Collect rides into an array
+          },
+        },
+      ]);
+      
+      console.log(`Fixed aggregation found ${results.length} documents`);
+      
+      // If we still don't have results, try a fallback approach
+      if (results.length === 0) {
+        console.log("Trying fallback approach...");
+        
+        // First get the IDs of documents that match our geo criteria
+        const geoMatchingDocs = await Rides.find({
+          [`ride.${locType === "start" ? "start" : "end"}`]: {
+            $near: {
+              $geometry: {
+                type: "Point",
+                coordinates: [longitude, latitude]
+              },
+              $maxDistance: maxDistance
+            }
+          }
+        }).select('_id');
+        
+        const docIds = geoMatchingDocs.map(doc => doc._id);
+        console.log(`Found ${docIds.length} documents matching geo criteria`);
+        
+        // Then fetch the full documents and process them manually
+        if (docIds.length > 0) {
+          const fullDocs = await Rides.find({
+            _id: { $in: docIds },
+            "ride.isRideActive": true
+          });
+          
+          console.log(`Found ${fullDocs.length} documents with active rides`);
+          
+          // Process the documents to match the expected structure
+          const processedResults = fullDocs.map(doc => {
+            return {
+              _id: doc._id,
+              userData: doc.userData,
+              rides: doc.ride.filter(r => r.isRideActive)
+            };
+          });
+          
+          console.log(`Processed ${processedResults.length} results with fallback approach`);
+          
+          // Use these results if the main aggregation failed
+          if (processedResults.length > 0) {
+            return res.status(200).send({
+              message: `nearby rides by ${locType} (fallback method)`,
+              payload: processedResults
+            });
+          }
         }
       }
-    ]);
-
-    res.status(200).send({ message: "nearby rides", payload: results });
+      
+      // Send the results from the main aggregation
+      res.status(200).send({
+        message: `nearby rides by ${locType}`,
+        payload: results
+      });
+    } catch (error) {
+      console.error("Error in /rides/near:", error);
+      res.status(500).send({
+        message: "Error finding nearby rides",
+        error: error.message
+      });
+    }
   })
 );
+
 
 
 //soft delete
