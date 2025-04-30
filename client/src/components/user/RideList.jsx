@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState, useRef } from "react";
 import axios from "axios";
-import { userContextObj } from "../contexts/userContext";
+import { userContextObj } from "../contexts/UserContext";
 import { getBaseUrl } from "../../utils/config";
 import {
   MapContainer,

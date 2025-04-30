@@ -4,7 +4,7 @@ import { useClerk, useUser } from "@clerk/clerk-react";
 import "bootstrap/dist/css/bootstrap.css";
 import "bootstrap/dist/js/bootstrap.bundle.js";
 import "./Header.css";
-import { userContextObj } from "../contexts/userContext";
+import { userContextObj } from "../contexts/UserContext";
 
 function Header() {
   const { signOut } = useClerk();
