@@ -34,7 +34,13 @@ const requestSchema = new mongoose.Schema(
     },
     request:{
       type: Boolean,
-      default: false
+      default: false,
+      required: true
+    },
+    decline:{
+      type: Boolean,
+      default: false,
+      required: true
     }
   },
   {

@@ -105,14 +105,14 @@ userApp.put(
       return res.status(400).json({ message: "Ride is not active" });
     }
 
-    const alreadyRequested = rideToUpdate.requests.some(
-      (req) => req.phNum === user.phNum
-    );
-    if (alreadyRequested) {
-      return res
-        .status(400)
-        .json({ message: "You have already requested this ride" });
-    }
+    // const alreadyRequested = rideToUpdate.requests.some(
+    //   (req) => req.phNum === user.phNum
+    // );
+    // if (alreadyRequested) {
+    //   return res
+    //     .status(400)
+    //     .json({ message: "You have already requested this ride" });
+    // }
 
     if (rideToUpdate.requests.length >= rideToUpdate.nuSeats) {
       return res.status(400).json({ message: "No seats available" });
@@ -124,9 +124,9 @@ userApp.put(
       phNum: user.phNum,
       profileImageUrl: user.profileImageUrl || "",
     });
-    console.log("ride to update", rideToUpdate);
+    // console.log("ride to update", rideToUpdate);
 
-    console.log(rideDoc);
+    // console.log(rideDoc);
     await rideDoc.save();
 
     await User.findByIdAndUpdate(userId, { $inc: { nuRides: 1 } });
@@ -140,22 +140,22 @@ userApp.get(
   "/rides/near",
   expressAsyncHandler(async (req, res) => {
     const { lng, lat, maxDistKm = 100, locType = "start" } = req.query;
-    
+
     if (!lng || !lat) {
       return res.status(400).send({ message: "please provide ?lng&lat" });
     }
-    
+
     // Parse coordinates to floats
     const longitude = parseFloat(lng);
     const latitude = parseFloat(lat);
-    
+
     if (isNaN(longitude) || isNaN(latitude)) {
       return res.status(400).send({ message: "Invalid coordinate values" });
     }
-    
+
     const geoField = locType === "start" ? "ride.start" : "ride.end";
     const maxDistance = Number(maxDistKm) * 1000;
-    
+
     try {
       // Fixed aggregation pipeline
       const results = await Rides.aggregate([
@@ -186,75 +186,75 @@ userApp.get(
           },
         },
       ]);
-      
+
       console.log(`Fixed aggregation found ${results.length} documents`);
-      
+
       // If we still don't have results, try a fallback approach
       if (results.length === 0) {
         console.log("Trying fallback approach...");
-        
+
         // First get the IDs of documents that match our geo criteria
         const geoMatchingDocs = await Rides.find({
           [`ride.${locType === "start" ? "start" : "end"}`]: {
             $near: {
               $geometry: {
                 type: "Point",
-                coordinates: [longitude, latitude]
+                coordinates: [longitude, latitude],
               },
-              $maxDistance: maxDistance
-            }
-          }
-        }).select('_id');
-        
-        const docIds = geoMatchingDocs.map(doc => doc._id);
+              $maxDistance: maxDistance,
+            },
+          },
+        }).select("_id");
+
+        const docIds = geoMatchingDocs.map((doc) => doc._id);
         console.log(`Found ${docIds.length} documents matching geo criteria`);
-        
+
         // Then fetch the full documents and process them manually
         if (docIds.length > 0) {
           const fullDocs = await Rides.find({
             _id: { $in: docIds },
-            "ride.isRideActive": true
+            "ride.isRideActive": true,
           });
-          
+
           console.log(`Found ${fullDocs.length} documents with active rides`);
-          
+
           // Process the documents to match the expected structure
-          const processedResults = fullDocs.map(doc => {
+          const processedResults = fullDocs.map((doc) => {
             return {
               _id: doc._id,
               userData: doc.userData,
-              rides: doc.ride.filter(r => r.isRideActive)
+              rides: doc.ride.filter((r) => r.isRideActive),
             };
           });
-          
-          console.log(`Processed ${processedResults.length} results with fallback approach`);
-          
+
+          console.log(
+            `Processed ${processedResults.length} results with fallback approach`
+          );
+
           // Use these results if the main aggregation failed
           if (processedResults.length > 0) {
             return res.status(200).send({
               message: `nearby rides by ${locType} (fallback method)`,
-              payload: processedResults
+              payload: processedResults,
             });
           }
         }
       }
-      
+
       // Send the results from the main aggregation
       res.status(200).send({
         message: `nearby rides by ${locType}`,
-        payload: results
+        payload: results,
       });
     } catch (error) {
       console.error("Error in /rides/near:", error);
       res.status(500).send({
         message: "Error finding nearby rides",
-        error: error.message
+        error: error.message,
       });
     }
   })
 );
-
-
 
 //soft delete
 userApp.put(
@@ -272,6 +272,260 @@ userApp.put(
     }
 
     res.status(200).send({ message: "Ride soft deleted", payload: result });
+  })
+);
+
+/// Get notifications
+userApp.get(
+  "/noti",
+  expressAsyncHandler(async (req, res) => {
+    try {
+      // Fix: Get baseID from query params instead of body
+      const id = req.query.baseID;
+
+      console.log("Getting notifications for user ID:", id);
+
+      if (!id) {
+        return res.status(400).send({ message: "User ID is required" });
+      }
+
+      const notiRes = await User.findById(id);
+
+      if (!notiRes) {
+        return res.status(404).send({ message: "User not found" });
+      }
+
+      console.log(
+        "Found user notifications:",
+        notiRes.notifications?.length || 0
+      );
+
+      res
+        .status(200)
+        .send({
+          message: "notifications",
+          payload: notiRes.notifications || [],
+        });
+    } catch (err) {
+      console.error("Error getting notifications:", err);
+      res.status(500).send({ message: err.message });
+    }
+  })
+);
+
+// Create/Add notification
+userApp.put(
+  "/notiput",
+  expressAsyncHandler(async (req, res) => {
+    try {
+      const {
+        baseID,
+        firstName,
+        rideId,
+        start,
+        end,
+        role,
+        message,
+        requesterId,
+      } = req.body;
+
+      console.log("Adding notification:", req.body);
+
+      if (!baseID) {
+        return res.status(400).send({ message: "User ID is required" });
+      }
+
+      // Create notification object
+      const newNotification = {
+        firstName,
+        rideId,
+        start,
+        end,
+        role,
+        requesterId: requesterId || "",
+        message:
+          message ||
+          `${firstName} has requested a ride from ${start} to ${end}`,
+      };
+      console.log("newnoti: ", newNotification);
+      // Add notification to user's notifications array
+      const updatedUser = await User.findByIdAndUpdate(
+        baseID,
+        { $push: { notifications: newNotification } },
+        { new: true }
+      );
+
+      if (!updatedUser) {
+        return res.status(404).send({ message: "User not found" });
+      }
+
+      console.log("Notification added successfully to user:", updatedUser._id);
+
+      res.status(200).send({
+        message: "Notification added successfully",
+        payload: updatedUser.notifications,
+      });
+    } catch (err) {
+      console.error("Error adding notification:", err);
+      res.status(500).send({ message: err.message });
+    }
+  })
+);
+
+// Update notification status (accept/decline)
+userApp.put(
+  "/updateNotification",
+  expressAsyncHandler(async (req, res) => {
+    try {
+      const { baseID, notificationId, accept, decline, requesterId } = req.body;
+
+      console.log("Updating notification:", req.body);
+
+      // Find the user
+      const user = await User.findById(baseID);
+      if (!user) {
+        return res.status(404).send({ message: "User not found" });
+      }
+
+      // Find the notification
+      console.log(user);
+      const notification = user.notifications.id(notificationId);
+      console.log(notification);
+      if (!notification) {
+        return res.status(404).send({ message: "Notification not found" });
+      }
+
+      // Update the ride request status in Rides collection
+      if (notification.role === "user") {
+        console.log("Updating ride request status for rider notification");
+        const ride = await Rides.findOne({
+          "ride.rideId": notification.rideId,
+        });
+
+        if (ride) {
+          const rideIndex = ride.ride.findIndex(
+            (r) => r.rideId === notification.rideId
+          );
+
+          if (rideIndex !== -1) {
+            const requestIndex = ride.ride[rideIndex].requests.findIndex(
+              (req) =>
+                req.baseID === requesterId ||
+                req.name === notification.firstName
+            );
+
+            if (requestIndex !== -1) {
+              console.log("Found ride request, updating status");
+              // Update request status
+              ride.ride[rideIndex].requests[requestIndex].request = accept;
+              ride.ride[rideIndex].requests[requestIndex].decline = decline;
+
+              await ride.save();
+
+              // Update notification message
+              notification.message = accept
+                ? "Request accepted"
+                : "Request declined";
+              notification.accepted = accept ? true : false;
+              notification.declined = accept ? false : true;
+
+              await user.save();
+            } else {
+              console.log(
+                "Request not found in ride. Available requests:",
+                ride.ride[rideIndex].requests.map((r) => ({
+                  name: r.name,
+                  baseID: r.baseID,
+                }))
+              );
+            }
+          } else {
+            console.log(
+              "Ride not found in rides collection. Available rides:",
+              ride.ride.map((r) => r.rideId)
+            );
+          }
+        } else {
+          console.log("No ride found with rideId:", notification.rideId);
+        }
+      }
+
+      // Create notification for the requester
+      if (requesterId) {
+        console.log(
+          "Creating response notification for requester:",
+          requesterId
+        );
+        const requester = await User.findById(requesterId);
+
+        if (requester) {
+          const responseNotification = {
+            firstName: user.firstName,
+            rideId: notification.rideId,
+            start: notification.start,
+            end: notification.end,
+            role: "user",
+            message: accept
+              ? "Your ride request has been accepted"
+              : "Your ride request has been declined",
+            requesterId: requesterId,
+            accepted: accept ? true : false,
+            declined: accept ? false : true,
+          };
+
+          requester.notifications.push(responseNotification);
+          await requester.save();
+          console.log("Response notification added to requester");
+        } else {
+          console.log("Requester not found:", requesterId);
+        }
+      }
+
+      res.status(200).send({
+        message: "Notification updated successfully",
+        payload: user.notifications,
+      });
+    } catch (err) {
+      console.error("Error updating notification:", err);
+      res.status(500).send({ message: err.message });
+    }
+  })
+);
+
+// Delete notification
+userApp.delete(
+  "/deleteNotification/:userId/:notificationId",
+  expressAsyncHandler(async (req, res) => {
+    try {
+      const { userId, notificationId } = req.params;
+
+      console.log(
+        "Deleting notification:",
+        notificationId,
+        "for user:",
+        userId
+      );
+
+      const updatedUser = await User.findByIdAndUpdate(
+        userId,
+        { $pull: { notifications: { _id: notificationId } } },
+        { new: true }
+      );
+
+      if (!updatedUser) {
+        return res.status(404).send({ message: "User not found" });
+      }
+
+      console.log("Notification deleted successfully");
+
+      res.status(200).send({
+        message: "Notification deleted successfully",
+        payload: updatedUser.notifications,
+      });
+    } catch (err) {
+      console.error("Error deleting notification:", err);
+      res.status(500).send({ message: err.message });
+    }
   })
 );
 

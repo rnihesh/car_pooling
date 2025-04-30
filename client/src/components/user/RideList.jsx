@@ -2,7 +2,15 @@ import React, { useContext, useEffect, useState, useRef } from "react";
 import axios from "axios";
 import { userContextObj } from "../contexts/userContext";
 import { getBaseUrl } from "../../utils/config";
-import { MapContainer, TileLayer, Marker, useMapEvents, useMap, Popup, Polyline } from "react-leaflet";
+import {
+  MapContainer,
+  TileLayer,
+  Marker,
+  useMapEvents,
+  useMap,
+  Popup,
+  Polyline,
+} from "react-leaflet";
 import L from "leaflet";
 import markerIcon from "leaflet/dist/images/marker-icon.png";
 import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
@@ -25,7 +33,7 @@ const createColoredIcon = (color) => {
     iconAnchor: [12, 41],
     popupAnchor: [1, -34],
     shadowUrl: markerShadow,
-    shadowSize: [41, 41]
+    shadowSize: [41, 41],
   });
 };
 
@@ -51,14 +59,14 @@ async function getLocationName(lat, lng) {
 // Component to fit map bounds to all markers
 function BoundsUpdater({ points }) {
   const map = useMap();
-  
+
   useEffect(() => {
     if (points && points.length > 0) {
       const bounds = L.latLngBounds(points);
       map.fitBounds(bounds, { padding: [30, 30] });
     }
   }, [map, points]);
-  
+
   return null;
 }
 
@@ -81,35 +89,41 @@ function RideCard({ ride, requestRide, currentLocation }) {
   const [endLocationName, setEndLocationName] = useState("Loading...");
   const [hovering, setHovering] = useState(false);
   const hoverTimeout = useRef(null);
-  
+
   const handleMouseEnter = () => {
     // Use timeout to prevent flickering if user just moves mouse through
     hoverTimeout.current = setTimeout(() => {
       setHovering(true);
     }, 300);
   };
-  
+
   const handleMouseLeave = () => {
     clearTimeout(hoverTimeout.current);
     setHovering(false);
   };
-  
+
   useEffect(() => {
     // Fetch location names when the card is rendered
     async function fetchLocationNames() {
-      const start = await getLocationName(ride.start.coordinates[1], ride.start.coordinates[0]);
-      const end = await getLocationName(ride.end.coordinates[1], ride.end.coordinates[0]);
+      const start = await getLocationName(
+        ride.start.coordinates[1],
+        ride.start.coordinates[0]
+      );
+      const end = await getLocationName(
+        ride.end.coordinates[1],
+        ride.end.coordinates[0]
+      );
       setStartLocationName(start);
       setEndLocationName(end);
     }
-    
+
     fetchLocationNames();
   }, [ride]);
-  
+
   // Calculate ride distance - straight line for simplicity
   const calculateDistance = () => {
     if (!currentLocation) return null;
-    
+
     // Function to calculate distance between two points using Haversine formula
     const getDistanceFromLatLonInKm = (lat1, lon1, lat2, lon2) => {
       const R = 6371; // Radius of the earth in km
@@ -117,37 +131,46 @@ function RideCard({ ride, requestRide, currentLocation }) {
       const dLon = deg2rad(lon2 - lon1);
       const a =
         Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-        Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) *
-        Math.sin(dLon / 2) * Math.sin(dLon / 2);
+        Math.cos(deg2rad(lat1)) *
+          Math.cos(deg2rad(lat2)) *
+          Math.sin(dLon / 2) *
+          Math.sin(dLon / 2);
       const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
       return R * c;
     };
-    
+
     const deg2rad = (deg) => {
       return deg * (Math.PI / 180);
     };
-    
+
     const startLat = ride.start.coordinates[1];
     const startLng = ride.start.coordinates[0];
     const currLat = currentLocation.coordinates[1];
     const currLng = currentLocation.coordinates[0];
-    
-    return getDistanceFromLatLonInKm(startLat, startLng, currLat, currLng).toFixed(1);
+
+    return getDistanceFromLatLonInKm(
+      startLat,
+      startLng,
+      currLat,
+      currLng
+    ).toFixed(1);
   };
-  
+
   // Prepare points for the map
-  const mapPoints = currentLocation ? [
-    [currentLocation.coordinates[1], currentLocation.coordinates[0]],
-    [ride.start.coordinates[1], ride.start.coordinates[0]],
-    [ride.end.coordinates[1], ride.end.coordinates[0]]
-  ] : [
-    [ride.start.coordinates[1], ride.start.coordinates[0]],
-    [ride.end.coordinates[1], ride.end.coordinates[0]]
-  ];
-  
+  const mapPoints = currentLocation
+    ? [
+        [currentLocation.coordinates[1], currentLocation.coordinates[0]],
+        [ride.start.coordinates[1], ride.start.coordinates[0]],
+        [ride.end.coordinates[1], ride.end.coordinates[0]],
+      ]
+    : [
+        [ride.start.coordinates[1], ride.start.coordinates[0]],
+        [ride.end.coordinates[1], ride.end.coordinates[0]],
+      ];
+
   // Get the distance if we have current location
   const distance = calculateDistance();
-  
+
   return (
     <div
       className="list-group-item"
@@ -158,13 +181,16 @@ function RideCard({ ride, requestRide, currentLocation }) {
         <div>
           <h5>{ride.userData.name}</h5>
           <p className="mb-1">
-            <strong>From:</strong> {startLocationName.split(',').slice(0, 2).join(',')}
+            <strong>From:</strong>{" "}
+            {startLocationName.split(",").slice(0, 2).join(",")}
           </p>
           <p className="mb-1">
-            <strong>To:</strong> {endLocationName.split(',').slice(0, 2).join(',')}
+            <strong>To:</strong>{" "}
+            {endLocationName.split(",").slice(0, 2).join(",")}
           </p>
           <p className="mb-1">
-            <strong>Vehicle:</strong> {ride.typeOfVeh} | <strong>Seats:</strong> {ride.nuSeats}
+            <strong>Vehicle:</strong> {ride.typeOfVeh} | <strong>Seats:</strong>{" "}
+            {ride.nuSeats}
           </p>
           <p className="mb-0">
             <strong>Time:</strong> {new Date(ride.time).toLocaleString()}
@@ -183,16 +209,23 @@ function RideCard({ ride, requestRide, currentLocation }) {
             </button>
             <button
               className="btn btn-sm btn-primary"
-              onClick={() => requestRide(ride._id)}
+              onClick={() => requestRide(ride)}
             >
               Request Ride
             </button>
           </div>
         </div>
-        
+
         {/* Hover preview map */}
         {hovering && (
-          <div style={{ width: "150px", height: "150px", borderRadius: "5px", overflow: "hidden" }}>
+          <div
+            style={{
+              width: "150px",
+              height: "150px",
+              borderRadius: "5px",
+              overflow: "hidden",
+            }}
+          >
             <MapContainer
               center={[ride.start.coordinates[1], ride.start.coordinates[0]]}
               zoom={10}
@@ -201,30 +234,35 @@ function RideCard({ ride, requestRide, currentLocation }) {
               attributionControl={false}
             >
               <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-              <Marker 
-                position={[ride.start.coordinates[1], ride.start.coordinates[0]]}
+              <Marker
+                position={[
+                  ride.start.coordinates[1],
+                  ride.start.coordinates[0],
+                ]}
                 icon={startIcon}
               />
-              <Marker 
+              <Marker
                 position={[ride.end.coordinates[1], ride.end.coordinates[0]]}
                 icon={endIcon}
               />
-              <Polyline 
+              <Polyline
                 positions={[
                   [ride.start.coordinates[1], ride.start.coordinates[0]],
-                  [ride.end.coordinates[1], ride.end.coordinates[0]]
+                  [ride.end.coordinates[1], ride.end.coordinates[0]],
                 ]}
                 color="blue"
               />
-              <BoundsUpdater points={[
-                [ride.start.coordinates[1], ride.start.coordinates[0]],
-                [ride.end.coordinates[1], ride.end.coordinates[0]]
-              ]} />
+              <BoundsUpdater
+                points={[
+                  [ride.start.coordinates[1], ride.start.coordinates[0]],
+                  [ride.end.coordinates[1], ride.end.coordinates[0]],
+                ]}
+              />
             </MapContainer>
           </div>
         )}
       </div>
-      
+
       {/* Full detailed map */}
       {showMap && (
         <div style={{ height: "300px", marginTop: "15px" }}>
@@ -237,33 +275,38 @@ function RideCard({ ride, requestRide, currentLocation }) {
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
               attribution="&copy; OpenStreetMap contributors"
             />
-            
+
             {/* Ride start marker */}
-            <Marker 
+            <Marker
               position={[ride.start.coordinates[1], ride.start.coordinates[0]]}
               icon={startIcon}
             >
               <Popup>
-                <strong>Start Point</strong><br />
+                <strong>Start Point</strong>
+                <br />
                 {startLocationName}
               </Popup>
             </Marker>
-            
+
             {/* Ride end marker */}
-            <Marker 
+            <Marker
               position={[ride.end.coordinates[1], ride.end.coordinates[0]]}
               icon={endIcon}
             >
               <Popup>
-                <strong>End Point</strong><br />
+                <strong>End Point</strong>
+                <br />
                 {endLocationName}
               </Popup>
             </Marker>
-            
+
             {/* User's current location marker */}
             {currentLocation && (
-              <Marker 
-                position={[currentLocation.coordinates[1], currentLocation.coordinates[0]]}
+              <Marker
+                position={[
+                  currentLocation.coordinates[1],
+                  currentLocation.coordinates[0],
+                ]}
                 icon={currentLocationIcon}
               >
                 <Popup>
@@ -271,16 +314,16 @@ function RideCard({ ride, requestRide, currentLocation }) {
                 </Popup>
               </Marker>
             )}
-            
+
             {/* Route line */}
-            <Polyline 
+            <Polyline
               positions={[
                 [ride.start.coordinates[1], ride.start.coordinates[0]],
-                [ride.end.coordinates[1], ride.end.coordinates[0]]
+                [ride.end.coordinates[1], ride.end.coordinates[0]],
               ]}
               color="blue"
             />
-            
+
             <BoundsUpdater points={mapPoints} />
           </MapContainer>
         </div>
@@ -295,7 +338,7 @@ export default function RideList() {
   const [dest, setDest] = useState(null);
   const [rides, setRides] = useState([]);
   const [message, setMessage] = useState("");
-  const [loading, setLoading] = useState(true); 
+  const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("all"); // "all", "car", "bike"
   const [sortBy, setSortBy] = useState("time"); // "time", "distance"
 
@@ -326,48 +369,48 @@ export default function RideList() {
     setLoading(true);
     try {
       let res;
-      
+
       if (dest) {
         console.log("Fetching rides near destination:", dest.coordinates);
-        
+
         // Fetch nearby rides by end-location
         res = await axios.get(`${getBaseUrl()}/user/rides/near`, {
           params: {
             lng: dest.coordinates[0],
             lat: dest.coordinates[1],
-            locType: 'end',
-            maxDistKm: 5 // Increased from 5 to 15km for more results
+            locType: "end",
+            maxDistKm: 5, // Increased from 5 to 15km for more results
           },
         });
-        
+
         // Handle the response data
         const docs = res.data.payload || [];
-        
+
         // Process the data
         const flat = docs.flatMap((doc) => {
           const ridesArray = doc.rides || [];
-          
+
           if (!Array.isArray(ridesArray)) {
             return [];
           }
-          
+
           return ridesArray.map((r) => ({
             ...r,
             userData: doc.userData || {},
-            ...(r.distance ? { distance: r.distance } : {})
+            ...(r.distance ? { distance: r.distance } : {}),
           }));
         });
-        
+
         // Sort by time by default
         flat.sort((a, b) => new Date(a.time) - new Date(b.time));
-        
+
         setRides(flat);
       } else {
         // Fetch all active rides
         res = await axios.get(`${getBaseUrl()}/user/rides`);
-        
+
         const docs = res.data.payload || [];
-        
+
         const flat = docs.flatMap((doc) =>
           (doc.ride || [])
             .filter((r) => r.isRideActive)
@@ -376,7 +419,7 @@ export default function RideList() {
               userData: doc.userData,
             }))
         );
-        
+
         setRides(flat);
       }
     } catch (err) {
@@ -388,14 +431,53 @@ export default function RideList() {
     }
   }
 
-  // 3) Send a ride request
-  async function requestRide(id) {
+  // 3) Send a ride request &
+  async function requestRide(ride) {
     try {
-      const res = await axios.put(`${getBaseUrl()}/user/ride/request`, {
-        userId: currentUser.baseID,
-        rideId: id,
+      // (a) request the ride
+      console.log("from reqride: ", ride);
+      const { data: reqRes } = await axios.put(
+        `${getBaseUrl()}/user/ride/request`,
+        {
+          userId: currentUser.baseID,
+          rideId: ride._id,
+        }
+      );
+      // show success for ride request
+      setMessage(reqRes.message);
+      console.log("from after reqride");
+
+      // (b) push a notification to the ride owner
+      console.log(
+        "for notiput from rewride: ",
+        ride.userData.baseID,
+        currentUser.firstName,
+        ride.rideId,
+        ride.start.coordinates,
+        currentUser.role,
+        currentUser.baseID
+        // startLocationName.split(",")[0]
+      );
+      await axios.put(`${getBaseUrl()}/user/notiput`, {
+        baseID: ride.userData.baseID, // the ride-owner’s user id
+        firstName: currentUser.firstName, // who’s requesting
+        rideId: ride.rideId,
+        start: {
+          type: "Point",
+          coordinates: ride.start.coordinates, // start is [lng, lat]
+        }, // [lng, lat]
+        end: {
+          type: "Point",
+          coordinates: ride.end.coordinates, // start is [lng, lat]
+        }, // [lng, lat]
+        role: currentUser.role || "",
+        requesterId: currentUser.baseID,
+        // message: `${currentUser.firstName} has requested your ride from ${
+        //   startLocationName.split(",")[0] || "start"
+        // } to ${endLocationName.split(",")[0] || "end"}`,
+        message: `${currentUser.firstName}, from start to end`,
       });
-      setMessage(res.data.message);
+
       fetchRides(); // refresh seats/counts if needed
     } catch (err) {
       setMessage(err.response?.data?.message || err.message);
@@ -404,7 +486,7 @@ export default function RideList() {
 
   // Filter and sort rides
   const filteredRides = rides
-    .filter(ride => {
+    .filter((ride) => {
       if (filter === "all") return true;
       return ride.typeOfVeh.toLowerCase() === filter;
     })
@@ -443,7 +525,7 @@ export default function RideList() {
             {/* Click to pick End location */}
             <LocationPicker setDest={setDest} />
             {dest && (
-              <Marker 
+              <Marker
                 position={[dest.coordinates[1], dest.coordinates[0]]}
                 icon={destinationIcon}
               >
@@ -464,17 +546,19 @@ export default function RideList() {
       <div className="d-flex justify-content-between align-items-center mb-3">
         <div>
           {dest ? (
-            <p className="mb-0">Showing rides near your selected destination.</p>
+            <p className="mb-0">
+              Showing rides near your selected destination.
+            </p>
           ) : (
             <p className="mb-0">Showing all active rides.</p>
           )}
         </div>
-        
+
         <div className="d-flex">
           <div className="me-3">
             <label className="me-2">Filter:</label>
-            <select 
-              className="form-select form-select-sm" 
+            <select
+              className="form-select form-select-sm"
               value={filter}
               onChange={(e) => setFilter(e.target.value)}
             >
@@ -483,10 +567,10 @@ export default function RideList() {
               <option value="bike">Bike Only</option>
             </select>
           </div>
-          
+
           <div>
             <label className="me-2">Sort:</label>
-            <select 
+            <select
               className="form-select form-select-sm"
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
@@ -499,11 +583,14 @@ export default function RideList() {
       </div>
 
       {message && (
-        <div className="alert alert-info alert-dismissible fade show" role="alert">
+        <div
+          className="alert alert-info alert-dismissible fade show"
+          role="alert"
+        >
           {message}
-          <button 
-            type="button" 
-            className="btn-close" 
+          <button
+            type="button"
+            className="btn-close"
             onClick={() => setMessage("")}
             aria-label="Close"
           ></button>
@@ -521,9 +608,9 @@ export default function RideList() {
           </div>
         ) : filteredRides.length > 0 ? (
           filteredRides.map((ride) => (
-            <RideCard 
-              key={ride._id || ride.rideId} 
-              ride={ride} 
+            <RideCard
+              key={ride._id || ride.rideId}
+              ride={ride}
               requestRide={requestRide}
               currentLocation={startLoc}
             />

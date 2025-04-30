@@ -7,7 +7,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import Squares from "../../components/ui/Squares/Squares";
 import DecryptedText from "../../components/ui/DecryptedText/DecryptedText";
-import { userContextObj } from "../contexts/userContext";
+import { userContextObj } from "../contexts/UserContext"; // Fix the import path
 import { getBaseUrl } from "../../utils/config";
 import rider from "../../assets/rider.svg";
 import userIcon from "../../assets/user.svg";
@@ -19,7 +19,9 @@ function Home() {
   const [loading, setLoading] = useState(true);
   const [showPhoneModal, setShowPhoneModal] = useState(false);
   const [phoneInput, setPhoneInput] = useState("");
+  const [role, setRole] = useState("");
   const navigate = useNavigate();
+
   // Initialize context from Clerk user
   useEffect(() => {
     if (isLoaded && user) {
@@ -29,89 +31,123 @@ function Home() {
         lastName: user.lastName,
         email: user.emailAddresses[0]?.emailAddress,
         profileImageUrl: user.imageUrl,
-        role: prev.role, // carry over whatever role was
-        baseID: prev.baseID, // carry ID too
-        // …and any other custom fields…
+        role: role || "", // carry over whatever role was
+        baseID: prev?.baseID || "", // carry ID too
       }));
+      setLoading(false);
     }
-  }, [isLoaded, user]);
+  }, [isLoaded, user, setCurrentUser]);
+
+  // Log current user when updated
   useEffect(() => {
     console.log("currentUser updated: ", currentUser);
   }, [currentUser]);
 
+  // Load from localStorage on initial mount
+  // useEffect(() => {
+  //   const savedUser = localStorage.getItem("currentuser");
+  //   if (savedUser) {
+  //     try {
+  //       const parsedUser = JSON.parse(savedUser);
+  //       if (parsedUser.baseID) {
+  //         setCurrentUser(prevUser => ({
+  //           ...prevUser,
+  //           ...parsedUser
+  //         }));
+  //         console.log("Loaded user from localStorage:", parsedUser);
+  //       }
+  //     } catch (err) {
+  //       console.error("Error parsing saved user:", err);
+  //     }
+  //   }
+  // }, []);
+
   // 1) Helper: returns true if user exists (and sets baseID in context)
   async function checkUserExists(email) {
+    if (!email) return null;
     try {
-      const res = await axios.get(`${getBaseUrl()}/user/find`, {
+      const { data } = await axios.get(`${getBaseUrl()}/user/find`, {
         params: { email },
       });
-      const exists = res.data.message === true;
-      if (exists) {
-        // grab the Mongo _id and stash it
-        const id = res.data.payload._id;
-        setCurrentUser((prev) => ({ ...prev, baseID: id }));
+      if (data.message === true && data.payload?._id) {
+        return data.payload._id; // return the Mongo _id
       }
-      return exists;
+      return null;
     } catch (err) {
       console.error("checkUserExists error:", err);
-      return false;
+      return null;
     }
   }
 
-  // 2) onSelectRole: uses that helper
   async function onSelectRole(e) {
     setError("");
     const selectedRole = e.target.value;
-
-    // Update role in context
-    setCurrentUser((prev) => ({ ...prev, role: selectedRole }));
-
-    // See if the user is already in your DB
-    const exists = await checkUserExists(currentUser.email);
-    console.log("exists:", exists);
-
-    if (!exists) {
-      // New user → need phone first
-      if (!currentUser.phNum) {
+  
+    // 1. build your userObj directly from currentUser + the freshly clicked role
+    const userObj = {
+      ...currentUser,
+      role: selectedRole,
+      phNum: currentUser.phNum,    // if they already entered phone
+    };
+  
+    if (!userObj.email) {
+      setError("User email is missing. Please try logging in again.");
+      return;
+    }
+  
+    // 2. check existence & get baseID
+    const existingId = await checkUserExists(userObj.email);
+    if (existingId) {
+      userObj.baseID = existingId;
+      finalizeLogin(userObj);
+    } else {
+      if (!userObj.phNum) {
         setShowPhoneModal(true);
         return;
       }
-      // then create in DB
-      await createAndSave({ ...currentUser, role: selectedRole });
-    } else {
-      // Existing user → carry baseID + role through
-      finalizeLogin({ ...currentUser, role: selectedRole });
+      await createAndSave(userObj);
     }
   }
+  
 
   // actually POST to create
   async function createAndSave(userObj) {
     try {
+      console.log("Creating user with:", userObj);
       const res = await axios.post(`${getBaseUrl()}/user/user`, userObj);
       const { message, payload } = res.data;
+      console.log("Create user response:", res.data);
+
       if (message === userObj.firstName) {
         const merged = { ...userObj, ...payload };
         finalizeLogin(merged);
       } else {
-        setError(message);
+        setError(message || "Failed to create user");
       }
     } catch (err) {
-      setError(err.message);
+      console.error("Error creating user:", err.response?.data || err.message);
+      setError(err.response?.data?.message || err.message);
     } finally {
       setShowPhoneModal(false);
     }
   }
 
-  // save to context, localStorage & navigate
   function finalizeLogin(userObj) {
-    setCurrentUser(userObj);
-    console.log("userObj from finalizeLogin : ", userObj);
-    localStorage.setItem("currentuser", JSON.stringify(userObj));
-    if (userObj.role === "user") {
-      navigate(`user/${userObj.email}`);
-    } else {
-      navigate(`rider/${userObj.email}`);
+    if (!userObj.baseID) {
+      console.error("Warning: finalizing login with no baseID", userObj);
     }
+
+    if (!userObj.role) {
+      setError("Please select a role before continuing.");
+      return;
+    }
+
+    const safeEmail = encodeURIComponent(userObj.email);
+    const path = `/${userObj.role}/${safeEmail}`;
+    console.log("Navigating to:", path);
+    setCurrentUser(userObj);
+    localStorage.setItem("currentuser", JSON.stringify(userObj));
+    navigate(path);
   }
 
   // when phone modal is submitted
@@ -126,7 +162,9 @@ function Home() {
     createAndSave(updated);
   }
 
-  if (!isLoaded) return null;
+  if (!isLoaded || loading)
+    return <div className="text-center mt-5">Please Login First..</div>;
+
   return (
     <div className="container-fluid px-3">
       {!isSignedIn && (
@@ -212,6 +250,9 @@ function Home() {
                   " !!!
                 </h5>
                 <p>{user.emailAddresses[0].emailAddress}</p>
+                {currentUser?.baseID && (
+                  <p className="small text-muted">ID: {currentUser.baseID}</p>
+                )}
               </div>
             </div>
 
@@ -289,7 +330,7 @@ function Home() {
           {error && (
             <p
               className="text-danger text-center fs-5 font-monospace"
-              style={{ marginTop: "100px" }}
+              style={{ marginTop: "20px" }}
             >
               {error}
             </p>
