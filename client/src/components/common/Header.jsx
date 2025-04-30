@@ -28,7 +28,7 @@ function Header() {
     <nav className="d-flex justify-content-between align-items-center p-2 shadow-sm bg-light flex-wrap">
       <div className="fw-bold fs-4">
         <Link to="/" className="text-decoration-none text-dark">
-          CarPool
+          Ride Share
         </Link>
       </div>
 

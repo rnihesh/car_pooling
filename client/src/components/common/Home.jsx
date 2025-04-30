@@ -82,19 +82,19 @@ function Home() {
   async function onSelectRole(e) {
     setError("");
     const selectedRole = e.target.value;
-  
+
     // 1. build your userObj directly from currentUser + the freshly clicked role
     const userObj = {
       ...currentUser,
       role: selectedRole,
-      phNum: currentUser.phNum,    // if they already entered phone
+      phNum: currentUser.phNum, // if they already entered phone
     };
-  
+
     if (!userObj.email) {
       setError("User email is missing. Please try logging in again.");
       return;
     }
-  
+
     // 2. check existence & get baseID
     const existingId = await checkUserExists(userObj.email);
     if (existingId) {
@@ -108,7 +108,6 @@ function Home() {
       await createAndSave(userObj);
     }
   }
-  
 
   // actually POST to create
   async function createAndSave(userObj) {
@@ -162,9 +161,6 @@ function Home() {
     createAndSave(updated);
   }
 
-  if (!isLoaded || loading)
-    return <div className="text-center mt-5">Please Login First..</div>;
-
   return (
     <div className="container-fluid px-3">
       {!isSignedIn && (
@@ -173,7 +169,7 @@ function Home() {
             className="bg-light p-5 text-center rounded-4 my-5 mx-3 mb-5"
             style={{ fontFamily: "Cal Sans" }}
           >
-            Modus Operandi
+            Reduce Pollution{" "}
           </h1>
           <div
             className="container-fluid"
