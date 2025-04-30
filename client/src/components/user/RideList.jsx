@@ -475,7 +475,7 @@ export default function RideList() {
         // message: `${currentUser.firstName} has requested your ride from ${
         //   startLocationName.split(",")[0] || "start"
         // } to ${endLocationName.split(",")[0] || "end"}`,
-        message: `${currentUser.firstName}, from start to end`,
+        message: `${currentUser.firstName}, from ${ride.start.coordinates} to ${ride.end.coordinates}`,
       });
 
       fetchRides(); // refresh seats/counts if needed
