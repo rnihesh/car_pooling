@@ -64,7 +64,7 @@ function CreateRide() {
         isRideActive: true,
       },
     ];
-    console.log("userdata from createride: ", userData,  "ride data : ", ride)
+    // console.log("userdata from createride: ", userData,  "ride data : ", ride)
 
     try {
       const res = await axios.post(`${getBaseUrl()}/user/riding`, {

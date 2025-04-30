@@ -13,10 +13,10 @@ function Notifications() {
   useEffect(() => {
     // Fetch notifications when component mounts or when currentUser changes
     if (currentUser && currentUser.baseID) {
-      console.log("Fetching notifications for user:", currentUser.baseID);
+      "Fetching notifications for user:", currentUser.baseID;
       fetchNotifications();
     } else {
-      console.log("No baseID available in currentUser:", currentUser);
+      // console.log("No baseID available in currentUser:", currentUser);
       setLoading(false);
     }
   }, [currentUser]);
@@ -29,7 +29,7 @@ function Notifications() {
         `${getBaseUrl()}/user/noti?baseID=${currentUser.baseID}`
       );
 
-      console.log("Notifications response:", response.data);
+      // console.log("Notifications response:", response.data);
 
       if (response.data && response.data.payload) {
         setNotifications(response.data.payload);
@@ -49,7 +49,7 @@ function Notifications() {
 
   const handleAccept = async (notification) => {
     try {
-      console.log("Accepting notification:", notification);
+      // console.log("Accepting notification:", notification);
       await axios.put(`${getBaseUrl()}/user/updateNotification`, {
         baseID: currentUser.baseID,
         notificationId: notification._id,
@@ -71,7 +71,7 @@ function Notifications() {
 
   const handleDecline = async (notification) => {
     try {
-      console.log("Declining notification:", notification);
+      // console.log("Declining notification:", notification);
       await axios.put(`${getBaseUrl()}/user/updateNotification`, {
         baseID: currentUser.baseID,
         notificationId: notification._id,
@@ -93,7 +93,7 @@ function Notifications() {
 
   const handleDelete = async (notificationId) => {
     try {
-      console.log("Deleting notification:", notificationId);
+      // console.log("Deleting notification:", notificationId);
       await axios.delete(
         `${getBaseUrl()}/user/deleteNotification/${
           currentUser.baseID
@@ -114,11 +114,11 @@ function Notifications() {
   // Function to render appropriate action buttons based on notification type
   const renderActionButtons = (notification) => {
     // For rider who needs to accept/decline a ride request
-    console.log(notification)
-    const alreadyHandled = notification.message.includes("accepted") || notification.message.includes("declined");
-    if (
-      notification.role === "user" && !alreadyHandled
-    ) {
+    notification;
+    const alreadyHandled =
+      notification.message.includes("accepted") ||
+      notification.message.includes("declined");
+    if (notification.role === "user" && !alreadyHandled) {
       return (
         <div className="notification-actions">
           <button

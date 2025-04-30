@@ -40,7 +40,7 @@ function Home() {
 
   // Log current user when updated
   useEffect(() => {
-    console.log("currentUser updated: ", currentUser);
+    // console.log("currentUser updated: ", currentUser);
   }, [currentUser]);
 
   // Load from localStorage on initial mount
@@ -112,10 +112,10 @@ function Home() {
   // actually POST to create
   async function createAndSave(userObj) {
     try {
-      console.log("Creating user with:", userObj);
+      // console.log("Creating user with:", userObj);
       const res = await axios.post(`${getBaseUrl()}/user/user`, userObj);
       const { message, payload } = res.data;
-      console.log("Create user response:", res.data);
+      // console.log("Create user response:", res.data);
 
       if (message === userObj.firstName) {
         const merged = { ...userObj, ...payload };
@@ -143,7 +143,7 @@ function Home() {
 
     const safeEmail = encodeURIComponent(userObj.email);
     const path = `/${userObj.role}/${safeEmail}`;
-    console.log("Navigating to:", path);
+    // console.log("Navigating to:", path);
     setCurrentUser(userObj);
     localStorage.setItem("currentuser", JSON.stringify(userObj));
     navigate(path);

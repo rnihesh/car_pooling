@@ -435,7 +435,7 @@ export default function RideList() {
   async function requestRide(ride) {
     try {
       // (a) request the ride
-      console.log("from reqride: ", ride);
+      // console.log("from reqride: ", ride);
       const { data: reqRes } = await axios.put(
         `${getBaseUrl()}/user/ride/request`,
         {
@@ -445,19 +445,19 @@ export default function RideList() {
       );
       // show success for ride request
       setMessage(reqRes.message);
-      console.log("from after reqride");
+      // console.log("from after reqride");
 
       // (b) push a notification to the ride owner
-      console.log(
-        "for notiput from rewride: ",
-        ride.userData.baseID,
-        currentUser.firstName,
-        ride.rideId,
-        ride.start.coordinates,
-        currentUser.role,
-        currentUser.baseID
-        // startLocationName.split(",")[0]
-      );
+      // console.log(
+      //   "for notiput from rewride: ",
+      //   ride.userData.baseID,
+      //   currentUser.firstName,
+      //   ride.rideId,
+      //   ride.start.coordinates,
+      //   currentUser.role,
+      //   currentUser.baseID
+      //   startLocationName.split(",")[0]
+      // );
       await axios.put(`${getBaseUrl()}/user/notiput`, {
         baseID: ride.userData.baseID, // the ride-owner’s user id
         firstName: currentUser.firstName, // who’s requesting

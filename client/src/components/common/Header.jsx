@@ -13,7 +13,7 @@ function Header() {
   const { currentUser, setCurrentUser } = useContext(userContextObj);
   const navigate = useNavigate();
   const location = useLocation();
-  console.log("currentUser from header: ",currentUser)
+  // console.log("currentUser from header: ",currentUser)
 
   async function handleSignout() {
     await signOut();
