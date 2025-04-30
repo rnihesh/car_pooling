@@ -1,0 +1,97 @@
+/* Footer Styles */
+.bg-footer {
+  background: linear-gradient(to bottom, #ffffff, #ced7d3);
+  padding: 40px 0;
+}
+
+.footer-heading h3 {
+  color: #000000;
+  font-size: 2.2rem;
+  font-weight: bold;
+  margin-bottom: 5px;
+  text-align: center;
+}
+
+.footer-heading p {
+  color: #667085;
+  font-size: 1rem;
+  text-align: center;
+  margin-bottom: 20px;
+}
+.social-icons {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-bottom: 10px;
+  background-color: transparent;
+}
+
+.social-icons a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 50px;
+  height: 50px;
+  background-color: transparent;
+  border-radius: 12px;
+  transition: 0.3s ease-in-out;
+}
+
+.social-icons a:hover {
+  transform: scale(1.2);
+}
+
+.social-icons svg {
+  color: #667085;
+  font-size: 24px;
+}
+
+.contact-info {
+  text-align: center;
+  color: #667085;
+  font-size: 0.9rem;
+  margin-top: 15px;
+}
+.contact-info p {
+  margin-bottom: -1px;
+}
+.contact-info a {
+  color: #667085;
+}
+.animated-text {
+  background-image: linear-gradient(
+    90deg,
+    #e85f5c,
+    #fcff4b,
+    #97b4d0,
+    #8789c0,
+    #e85f5c
+  );
+  background-size: 300% 100%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  animation: colorShift 3s infinite linear;
+}
+
+@keyframes colorShift {
+  0% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+.footer-bottom {
+  margin-top: 10px;
+  text-align: center;
+  font-size: 1rem;
+  color: #667085;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .contact-info {
+    word-wrap: break-word;
+  }
+}

@@ -2,11 +2,26 @@ nav{
   display: flex;
   justify-content: space-between;
   margin: 10px;
-  background-color: rgb(179, 196, 223);
+  /* background-color: rgb(179, 196, 223); */
+  background-color: #cfcfdc;
   border-radius: 10px;
   padding: 20px;
-
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  -webkit-backdrop-filter: blur(10px); /* Webkit-compatible blur for iPhone/Safari */
+  backdrop-filter: blur(10px); /* Standard blur for modern browsers */
+  -webkit-box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2); /* Webkit-compatible shadow for iPhone */
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2); /* Standard shadow */
+  background-color: rgba(206, 206, 224, 0.5); 
 }
+@media screen and (max-width: 423px) {
+  nav {
+    justify-content: center; /* Center the items inside the nav */
+  }
+}
+
 ul{
   gap: 1.2rem;
   flex-wrap: wrap;

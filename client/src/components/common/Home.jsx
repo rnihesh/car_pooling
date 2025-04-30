@@ -162,7 +162,7 @@ function Home() {
   }
 
   return (
-    <div className="container-fluid px-3">
+    <div className="container-fluid px-3 mt-5">
       {!isSignedIn && (
         <>
           <h1

@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useRef } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useClerk, useUser } from "@clerk/clerk-react";
 import "bootstrap/dist/css/bootstrap.css";
@@ -22,10 +22,9 @@ function Header() {
     setCurrentUser(null);
     navigate("/");
   }
-  
 
   return (
-    <nav className="d-flex justify-content-between align-items-center p-2 shadow-sm bg-light flex-wrap">
+    <nav className="d-flex align-items-center p-3 shadow-sm  flex-wrap">
       <div className="fw-bold fs-4">
         <Link to="/" className="text-decoration-none text-dark">
           Ride Share
@@ -40,9 +39,13 @@ function Header() {
             </Link>
           </li>
           <li className="nav-item">
-            <Link to="/about" className="nav-link">
+            <a
+              onClick={() => window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" })}
+              className="nav-link"
+              style={{ cursor: "pointer" }}
+            >
               About
-            </Link>
+            </a>
           </li>
 
           {!isSignedIn && (
@@ -136,10 +139,12 @@ function Header() {
                       </>
                     )}
 
-                    {currentUser.role==="" &&(<li className="container-fluid">
-                      Choose the role
-                      <hr className="dropdown-divider" />
-                    </li>)}
+                    {currentUser.role === "" && (
+                      <li className="container-fluid">
+                        Choose the role
+                        <hr className="dropdown-divider" />
+                      </li>
+                    )}
                     <li>
                       <button onClick={handleSignout} className="dropdown-item">
                         Logout
