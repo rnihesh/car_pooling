@@ -59,7 +59,7 @@ const browserRouterObj = createBrowserRouter(
             },
             {
               path: "",
-              element: <Navigate to="my" />,
+              element: <Navigate to="ride" />,
             },
           ],
         },
