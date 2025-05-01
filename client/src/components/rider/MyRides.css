@@ -7,13 +7,23 @@
 }
 
 .fetch-button {
-  background-color: #4285f4;
-  color: white;
+  background-color: #ffffff;
+  color: black;
   border: none;
-  padding: 0.5rem 1rem;
+  padding: 0.3rem 0.9rem;
   border-radius: 4px;
   cursor: pointer;
   margin-bottom: 1rem;
+  border: 1px solid black;
+  transition: 0.2s ease-in;
+  display: flex;
+  justify-self: center;
+}
+.fetch-button:hover{
+  color: white;
+  background-color: black;
+
+  border-radius: 8px;
 }
 
 .fetch-button:disabled {
@@ -63,4 +73,28 @@
 .requests-list li {
   padding: 0.5rem;
   border-bottom: 1px solid #eeeeee;
+}
+
+.nameAndDelete{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.delete-button {
+  background-color: #ffffff;
+  color: black;
+  border: none;
+  padding: 0.2rem 0.9rem;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-bottom: 1rem;
+  border: 1px solid black;
+  transition: 0.2s ease-in;
+}
+.delete-button:hover{
+  color: white;
+  background-color: black;
+  border-radius: 8px;
+
 }

@@ -259,7 +259,7 @@ userApp.get(
 
 //soft delete
 userApp.put(
-  "/rides/:rideId",
+  "/ridesdel/:rideId",
   expressAsyncHandler(async (req, res) => {
     const { rideId } = req.params;
     const result = await Rides.findOneAndUpdate(
@@ -273,6 +273,25 @@ userApp.put(
     }
 
     res.status(200).send({ message: "Ride soft deleted", payload: result });
+  })
+);
+
+//soft restore
+userApp.put(
+  "/ridesres/:rideId",
+  expressAsyncHandler(async (req, res) => {
+    const { rideId } = req.params;
+    const result = await Rides.findOneAndUpdate(
+      { "ride._id": rideId },
+      { $set: { "ride.$.isRideActive": true } },
+      { new: true } // Returns updated document
+    );
+
+    if (!result) {
+      return res.status(404).send({ message: "Ride not found" });
+    }
+
+    res.status(200).send({ message: "Ride soft restored", payload: result });
   })
 );
 
