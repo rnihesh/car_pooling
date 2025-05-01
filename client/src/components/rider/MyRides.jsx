@@ -14,17 +14,12 @@ function MyRides() {
     try {
       setLoading(true);
       setError(null);
-
-      // The backend expects the baseID as a URL parameter, not a query parameter
       const baseID = currentUser.baseID;
       const res = await axios.get(
         `${getBaseUrl()}/user/specific-rides/${baseID}`
       );
-
-      console.log("my rides:", res.data.payload);
       setRides(res.data.payload);
     } catch (err) {
-      console.error("Error fetching rides:", err);
       setError(err.response?.data?.message || "Failed to fetch rides");
     } finally {
       setLoading(false);
@@ -32,17 +27,14 @@ function MyRides() {
   }
 
   async function handleDeleteRide(id) {
-    const res = await axios.put(`${getBaseUrl()}/user/ridesdel/${id}`);
-    console.log(res);
+    await axios.put(`${getBaseUrl()}/user/ridesdel/${id}`);
     fetchRidesUser();
   }
   async function handleRestoreRide(id) {
-    const res = await axios.put(`${getBaseUrl()}/user/ridesres/${id}`);
-    console.log(res);
+    await axios.put(`${getBaseUrl()}/user/ridesres/${id}`);
     fetchRidesUser();
   }
 
-  // Optional: Fetch rides automatically when component mounts
   useEffect(() => {
     if (currentUser?.baseID) {
       fetchRidesUser();
@@ -51,80 +43,112 @@ function MyRides() {
 
   return (
     <div className="my-rides-container">
-      <h2>My Rides</h2>
-
-      {/* Status indicators */}
+      <h2 className="mb-4" style={{ color: "#e85f5c" }}>
+        My Rides
+      </h2>
       {loading && <p>Loading your rides...</p>}
       {error && <p className="error-message">Error: {error}</p>}
-
-      {/* Fetch button (optional if using useEffect) */}
       <button
         onClick={fetchRidesUser}
         disabled={loading}
-        className="fetch-button "
+        className="fetch-button mb-3"
       >
         {loading ? "Fetching..." : "Refresh Rides"}
       </button>
-
-      {/* Display rides */}
       {rides && rides.length > 0 ? (
         <div className="rides-list">
           {rides.map((rideDoc) => (
-            <div key={rideDoc._id} className="ride-document">
-              <h3>Rider: {rideDoc.userData.name}</h3>
-
-              {rideDoc.ride &&
-                rideDoc.ride.map((singleRide) => (
-                  <div key={singleRide._id} className="ride-card">
-                    <div className="nameAndDelete">
-                      <p>Ride ID: {singleRide.rideId}</p>
-                      {singleRide.isRideActive === true ? (
-                        <button
-                          className="delete-button"
-                          onClick={() => handleDeleteRide(singleRide._id)}
-                        >
-                          Delete Ride
-                        </button>
-                      ) : (
-                        <button
-                          className="delete-button"
-                          onClick={() => handleRestoreRide(singleRide._id)}
-                        >
-                          Restore Ride
-                        </button>
-                      )}
-                    </div>
-                    <p>Vehicle: {singleRide.typeOfVeh}</p>
-                    <p>Available Seats: {singleRide.nuSeats}</p>
-                    <p>Time: {new Date(singleRide.time).toLocaleString()}</p>
-                    <p>
-                      Status: {singleRide.isRideActive ? "Active" : "Inactive"}
-                    </p>
-
-                    {singleRide.requests && singleRide.requests.length > 0 && (
-                      <div className="requests-container">
-                        <h4>Requests ({singleRide.requests.length})</h4>
-                        <ul className="requests-list">
-                          {singleRide.requests.map((request, index) => (
-                            <li key={index}>
-                              {request.name} -{" "}
-                              {request.request
-                                ? "Accepted"
-                                : request.decline
-                                ? "Declined"
-                                : "Pending"}
-                            </li>
-                          ))}
-                        </ul>
+            <div
+              key={rideDoc._id}
+              className="ride-document card shadow-sm mb-3"
+            >
+              <div className="card-body">
+                <h5 className="card-title mb-3" style={{ color: "#e85f5c" }}>
+                  Rider: {rideDoc.userData.name}
+                </h5>
+                {rideDoc.ride &&
+                  rideDoc.ride.map((singleRide) => (
+                    <div
+                      key={singleRide._id}
+                      className="ride-card mb-4 p-3 rounded"
+                      style={{ background: "#f8fafc" }}
+                    >
+                      <div className="nameAndDelete mb-2">
+                        <span>
+                          <strong>Ride ID:</strong> {singleRide.rideId}
+                        </span>
+                        {singleRide.isRideActive === true ? (
+                          <button
+                            className="delete-button"
+                            onClick={() => handleDeleteRide(singleRide._id)}
+                          >
+                            Delete Ride
+                          </button>
+                        ) : (
+                          <button
+                            className="delete-button"
+                            onClick={() => handleRestoreRide(singleRide._id)}
+                          >
+                            Restore Ride
+                          </button>
+                        )}
                       </div>
-                    )}
-                  </div>
-                ))}
+                      <div className="mb-1">
+                        <strong>Vehicle:</strong> {singleRide.typeOfVeh}
+                      </div>
+                      <div className="mb-1">
+                        <strong>Available Seats:</strong> {singleRide.nuSeats}
+                      </div>
+                      <div className="mb-1">
+                        <strong>Time:</strong>{" "}
+                        {new Date(singleRide.time).toLocaleString()}
+                      </div>
+                      <div className="mb-1">
+                        <strong>Status:</strong>{" "}
+                        <span
+                          className={
+                            singleRide.isRideActive
+                              ? "text-success"
+                              : "text-danger"
+                          }
+                        >
+                          {singleRide.isRideActive ? "Active" : "Inactive"}
+                        </span>
+                      </div>
+                      {singleRide.requests &&
+                        singleRide.requests.length > 0 && (
+                          <div className="requests-container mt-2">
+                            <h6>Requests ({singleRide.requests.length})</h6>
+                            <ul className="requests-list">
+                              {singleRide.requests.map((request, index) => (
+                                <li key={index}>
+                                  {request.name} -{" "}
+                                  {request.request ? (
+                                    <span className="text-success">
+                                      Accepted
+                                    </span>
+                                  ) : request.decline ? (
+                                    <span className="text-danger">
+                                      Declined
+                                    </span>
+                                  ) : (
+                                    <span className="text-warning">
+                                      Pending
+                                    </span>
+                                  )}
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                    </div>
+                  ))}
+              </div>
             </div>
           ))}
         </div>
       ) : (
-        !loading && <p>No rides found.</p>
+        !loading && <div className="alert alert-info mt-4">No rides found.</div>
       )}
     </div>
   );

@@ -128,7 +128,7 @@ function RideCard({ ride, requestRide, currentLocation }) {
     const getDistanceFromLatLonInKm = (lat1, lon1, lat2, lon2) => {
       const R = 6371; // Radius of the earth in km
       const dLat = deg2rad(lat2 - lat1);
-      const dLon = deg2rad(lon2 - lon1);
+      const dLon = deg2rad(lat2 - lat1);
       const a =
         Math.sin(dLat / 2) * Math.sin(dLat / 2) +
         Math.cos(deg2rad(lat1)) *
@@ -173,13 +173,16 @@ function RideCard({ ride, requestRide, currentLocation }) {
 
   return (
     <div
-      className="list-group-item"
+      className="card mb-3 shadow-sm"
+      style={{ borderLeft: "5px solid #e85f5c" }}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-      <div className="d-flex justify-content-between align-items-start">
+      <div className="card-body d-flex justify-content-between align-items-start">
         <div>
-          <h5>{ride.userData.name}</h5>
+          <h5 className="card-title mb-2" style={{ color: "#e85f5c" }}>
+            {ride.userData.name}
+          </h5>
           <p className="mb-1">
             <strong>From:</strong>{" "}
             {startLocationName.split(",").slice(0, 2).join(",")}
@@ -202,20 +205,20 @@ function RideCard({ ride, requestRide, currentLocation }) {
           )}
           <div className="mt-2">
             <button
-              className="btn btn-sm btn-secondary me-2"
+              className="btn btn-sm btn-outline-secondary me-2"
               onClick={() => setShowMap(!showMap)}
             >
               {showMap ? "Hide Map" : "Show Map"}
             </button>
             <button
               className="btn btn-sm btn-primary"
+              style={{ background: "#e85f5c", border: "none" }}
               onClick={() => requestRide(ride)}
             >
               Request Ride
             </button>
           </div>
         </div>
-
         {/* Hover preview map */}
         {hovering && (
           <div
@@ -224,6 +227,7 @@ function RideCard({ ride, requestRide, currentLocation }) {
               height: "150px",
               borderRadius: "5px",
               overflow: "hidden",
+              marginLeft: "10px",
             }}
           >
             <MapContainer
@@ -262,7 +266,6 @@ function RideCard({ ride, requestRide, currentLocation }) {
           </div>
         )}
       </div>
-
       {/* Full detailed map */}
       {showMap && (
         <div style={{ height: "300px", marginTop: "15px" }}>
@@ -490,6 +493,7 @@ export default function RideList() {
       if (filter === "all") return true;
       return ride.typeOfVeh.toLowerCase() === filter;
     })
+    .filter((ride) => ride.nuSeats > 0) // Exclude rides with 0 seats
     .sort((a, b) => {
       if (sortBy === "time") {
         return new Date(a.time) - new Date(b.time);
@@ -501,10 +505,15 @@ export default function RideList() {
 
   return (
     <div className="container py-4">
-      <h2 className="mb-3">Available Rides</h2>
+      <h2 className="mb-3" style={{ color: "#e85f5c" }}>
+        Available Rides
+      </h2>
 
       {/* Map for picking destination */}
-      <div style={{ height: "300px" }} className="mb-4 border rounded">
+      <div
+        style={{ height: "300px" }}
+        className="mb-4 border rounded shadow-sm"
+      >
         {startLoc ? (
           <MapContainer
             center={[startLoc.coordinates[1], startLoc.coordinates[0]]}
@@ -561,6 +570,7 @@ export default function RideList() {
               className="form-select form-select-sm"
               value={filter}
               onChange={(e) => setFilter(e.target.value)}
+              style={{ minWidth: 120 }}
             >
               <option value="all">All Vehicles</option>
               <option value="car">Car Only</option>
@@ -574,6 +584,7 @@ export default function RideList() {
               className="form-select form-select-sm"
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
+              style={{ minWidth: 120 }}
             >
               <option value="time">By Time</option>
               <option value="distance">By Distance</option>
@@ -598,7 +609,7 @@ export default function RideList() {
       )}
 
       {/* Ride list */}
-      <div className="list-group">
+      <div>
         {loading ? (
           <div className="text-center py-4">
             <div className="spinner-border text-primary" role="status">
@@ -616,7 +627,7 @@ export default function RideList() {
             />
           ))
         ) : (
-          <div className="text-center py-4">
+          <div className="alert alert-info text-center py-4">
             <p className="text-muted">No rides found.</p>
             <p>
               Try {dest ? "selecting a different destination or " : ""}

@@ -7,7 +7,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import Squares from "../../components/ui/Squares/Squares";
 import DecryptedText from "../../components/ui/DecryptedText/DecryptedText";
-import { userContextObj } from "../contexts/UserContext"; // Fix the import path
+import { userContextObj } from "../contexts/UserContext";
 import { getBaseUrl } from "../../utils/config";
 import rider from "../../assets/rider.svg";
 import userIcon from "../../assets/user.svg";
@@ -162,123 +162,170 @@ function Home() {
   }
 
   return (
-    <div className="container-fluid px-3 mt-3">
+    <div
+      className="container-fluid px-0"
+      style={{ minHeight: "100vh" }}
+    >
+      {/* Animated Hero Section */}
       {!isSignedIn && (
-        <>
-          <h1
-            className="bg-light p-5 text-center rounded-4 my-5 mx-3 mb-5"
-            style={{ fontFamily: "Cal Sans" }}
-          >
-            Reduce Pollution{" "}
-          </h1>
+        <div className="position-relative" style={{ minHeight: "60vh" }}>
+          <Squares
+            direction="diagonal"
+            speed={0.5}
+            borderColor="#e0e0e0"
+            squareSize={60}
+            hoverFillColor="#e85f5c"
+            className="position-absolute top-0 start-0 w-100 h-100"
+            style={{ zIndex: 0, opacity: 0.15 }}
+          />
           <div
-            className="container-fluid"
-            style={{
-              fontFamily: "Coral Pixels",
-              paddingLeft: "100px",
-              paddingRight: "100px",
-            }}
+            className="d-flex flex-column align-items-center justify-content-center text-center position-relative"
+            style={{ zIndex: 1, minHeight: "60vh" }}
           >
-            <DecryptedText
-              text="Share rides."
-              speed={100}
-              maxIterations={20}
-              characters="ABCD1234!?"
-              className="revealed text-center decrypting"
-              parentClassName="all-letters"
-              encryptedClassName="encrypted"
-            />
-            <br />
-            <DecryptedText
-              text="Find drivers, save money."
-              speed={100}
-              maxIterations={20}
-              characters="ABCD1234!?"
-              className="revealed text-center decrypting"
-              parentClassName="all-letters"
-              encryptedClassName="encrypted"
-            />
-            <br />
-            <DecryptedText
-              text="Connect with riders, book easy rides."
-              speed={100}
-              maxIterations={20}
-              characters="ABCD1234!?"
-              className="revealed text-center decrypting"
-              parentClassName="all-letters"
-              encryptedClassName="encrypted"
-            />
-            <br />
-            <DecryptedText
-              text="Join our car pooling app to travel smarter, cheaper, and greener every day."
-              speed={100}
-              maxIterations={20}
-              characters="ABCD1234!?"
-              className="revealed text-center decrypting"
-              parentClassName="all-letters"
-              encryptedClassName="encrypted"
-            />
-            <br />
+            <h1
+              className="fw-bold mb-4"
+              style={{
+                fontFamily: "Cal Sans",
+                fontSize: "3rem",
+                color: "#222",
+              }}
+            >
+              <span style={{ color: "#e85f5c" }}>Ride Share</span> – Go Greener,
+              Go Together!
+            </h1>
+            <div className="mb-3" style={{ maxWidth: 600 }}>
+              <DecryptedText
+                text="Share rides. Save money. Reduce pollution."
+                speed={60}
+                maxIterations={18}
+                className="fs-4 text-dark"
+                parentClassName="all-letters"
+                encryptedClassName="encrypted"
+              />
+            </div>
+            <div className="mb-2" style={{ maxWidth: 700 }}>
+              <DecryptedText
+                text="Join our car pooling app to travel smarter, cheaper, and greener every day."
+                speed={60}
+                maxIterations={18}
+                className="fs-5 text-secondary"
+                parentClassName="all-letters"
+                encryptedClassName="encrypted"
+              />
+            </div>
+            <div className="mt-4">
+              <a
+                href="/signin"
+                className="btn btn-lg btn-primary px-5 py-2"
+                style={{
+                  background: "#e85f5c",
+                  border: "none",
+                  fontWeight: "bold",
+                }}
+              >
+                Get Started
+              </a>
+            </div>
           </div>
-        </>
+        </div>
       )}
 
+      {/* Signed-in User Section */}
       {isSignedIn && (
-        <div className="d-flex justify-content-center vov">
+        <div
+          className="d-flex justify-content-center align-items-center"
+          style={{ minHeight: "80vh" }}
+        >
           <div
-            className="user-section p-5 rounded-5 w-100 border"
-            style={{ margin: "100px" }}
+            className="user-section p-4 rounded-5 w-100 border shadow-lg"
+            style={{ maxWidth: 700, background: "#fff" }}
           >
-            <div className="user-info2 d-flex flex-column flex-md-row justify-content-center align-items-center p-4 rounded-3 mb-4">
+            <div
+              className="user-info2 d-flex flex-column flex-md-row justify-content-center align-items-center p-4 rounded-3 mb-4"
+              style={{ background: "#f8fafc" }}
+            >
               <img
                 src={user.imageUrl}
-                width="100px"
-                height="100px"
-                className="rounded-circle mb-3 mb-md-0"
+                width="110"
+                height="110"
+                className="rounded-circle mb-3 mb-md-0 border border-3"
                 alt="User Profile"
+                style={{ boxShadow: "0 2px 12px rgba(232,95,92,0.12)" }}
               />
               <div className="user-details text-center text-md-start ms-md-4">
-                <h5>
-                  Welcome "
-                  <span style={{ fontSize: "1.4rem", fontWeight: "bold" }}>
-                    {user.firstName}
-                  </span>
-                  " !!!
-                </h5>
-                <p>{user.emailAddresses[0].emailAddress}</p>
+                <h4 className="fw-bold mb-1" style={{ color: "#e85f5c" }}>
+                  Welcome, {user.firstName}!
+                </h4>
+                <p className="mb-1 text-muted">
+                  {user.emailAddresses[0].emailAddress}
+                </p>
                 {currentUser?.baseID && (
-                  <p className="small text-muted">ID: {currentUser.baseID}</p>
+                  <span className="badge bg-secondary">
+                    ID: {currentUser.baseID}
+                  </span>
                 )}
               </div>
             </div>
 
             <div className="role-selection text-center">
-              <p className="lead">Select your role</p>
+              <p className="lead mb-3">Choose your role to continue</p>
               {error && (
                 <p className="text-danger fs-5 font-monospace">{error}</p>
               )}
               <div className="role-buttons d-flex flex-column flex-md-row justify-content-center gap-4">
-                {["rider", "user"].map((r) => (
+                {[
+                  {
+                    key: "rider",
+                    title: "Rider",
+                    desc: "Offer a ride",
+                    icon: rider,
+                    color: "#e85f5c",
+                  },
+                  {
+                    key: "user",
+                    title: "User",
+                    desc: "Find & join rides",
+                    icon: userIcon,
+                    color: "#667085",
+                  },
+                ].map((r) => (
                   <button
-                    key={r}
-                    className="role-btn d-flex flex-column align-items-center p-4 btn btn-outline-dark"
-                    value={r}
+                    key={r.key}
+                    className="role-btn d-flex flex-column align-items-center p-4 btn btn-outline-dark shadow-sm"
+                    value={r.key}
                     onClick={onSelectRole}
+                    style={{
+                      minWidth: 180,
+                      borderColor: r.color,
+                      borderWidth: 2,
+                      borderRadius: 18,
+                      background: "white",
+                      transition: "0.2s",
+                    }}
                   >
                     <img
-                      alt={`${r} icon`}
+                      alt={`${r.title} icon`}
                       className="mb-2"
-                      width="100px"
-                      src={r === "rider" ? rider : userIcon}
+                      width="70"
+                      src={r.icon}
+                      style={{
+                        filter: r.key === "rider" ? "none" : "grayscale(0.7)",
+                      }}
                     />
-                    <span style={{ fontWeight: "bolder" }}>
-                      {r.charAt(0).toUpperCase() + r.slice(1)}
+                    <span
+                      style={{
+                        fontWeight: "bold",
+                        color: r.color,
+                        fontSize: "1.2rem",
+                      }}
+                    >
+                      {r.title}
                     </span>
                     <span
-                      className="text-sm text-gray-500"
-                      style={{ fontSize: "0.9rem" }}
+                      className="text-muted"
+                      style={{ fontSize: "0.95rem" }}
                     >
-                      {r === "rider" ? "Offer a ride" : "Find & join rides"}
+                      {r.desc}
                     </span>
                   </button>
                 ))}
@@ -295,10 +342,10 @@ function Home() {
         role="dialog"
         style={showPhoneModal ? { background: "rgba(248,249,250,0.9)" } : {}}
       >
-        <div className="modal-dialog pt-5 py-5" role="document">
+        <div className="modal-dialog pt-5 py-5" style={{marginTop: "100px"}} role="document">
           <form className="modal-content" onSubmit={handlePhoneSubmit}>
             <div className="modal-header">
-              <h5 className="modal-title">Enter Your Phone</h5>
+              <h5 className="modal-title">Enter Your Phone Number</h5>
             </div>
             <div className="modal-body">
               <input
@@ -308,7 +355,12 @@ function Home() {
                 value={phoneInput}
                 onChange={(e) => setPhoneInput(e.target.value)}
                 required
+                autoFocus
+                pattern="^\d{7,15}$"
               />
+              <small className="text-muted">
+                We'll use this to contact you about your rides.
+              </small>
             </div>
             <div className="modal-footer">
               <button
@@ -318,7 +370,11 @@ function Home() {
               >
                 Cancel
               </button>
-              <button type="submit" className="btn btn-outline-primary">
+              <button
+                type="submit"
+                className="btn btn-primary"
+                style={{ background: "#e85f5c", border: "none" }}
+              >
                 Continue
               </button>
             </div>

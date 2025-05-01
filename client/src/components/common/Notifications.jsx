@@ -4,6 +4,7 @@ import { userContextObj } from "../contexts/UserContext"; // Make sure path is c
 import { getBaseUrl } from "../../utils/config"; // Import getBaseUrl helper
 import "./Notifications.css";
 
+
 function Notifications() {
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -13,12 +14,12 @@ function Notifications() {
   useEffect(() => {
     // Fetch notifications when component mounts or when currentUser changes
     if (currentUser && currentUser.baseID) {
-      "Fetching notifications for user:", currentUser.baseID;
       fetchNotifications();
     } else {
       // console.log("No baseID available in currentUser:", currentUser);
       setLoading(false);
     }
+    // eslint-disable-next-line
   }, [currentUser]);
 
   const fetchNotifications = async () => {
@@ -111,13 +112,20 @@ function Notifications() {
     }
   };
 
+  const getStatus = (notification) => {
+    if (notification.accepted) return { label: "Accepted", color: "#4caf50" };
+    if (notification.declined) return { label: "Declined", color: "#f44336" };
+    return { label: "Pending", color: "#ff9800" };
+  };
+
   // Function to render appropriate action buttons based on notification type
   const renderActionButtons = (notification) => {
     // For rider who needs to accept/decline a ride request
-    notification;
     const alreadyHandled =
-      notification.message.includes("accepted") ||
-      notification.message.includes("declined");
+      notification.accepted === true ||
+      notification.declined === true ||
+      notification.message?.toLowerCase().includes("accepted") ||
+      notification.message?.toLowerCase().includes("declined");
     if (notification.role === "user" && !alreadyHandled) {
       return (
         <div className="notification-actions">
@@ -189,7 +197,9 @@ function Notifications() {
 
   return (
     <div className="notifications-container">
-      <h2>Notifications</h2>
+      <h2 className="mb-4" style={{ color: "#e85f5c" }}>
+        Notifications
+      </h2>
 
       {renderDebugInfo()}
 
@@ -201,50 +211,89 @@ function Notifications() {
         <div className="no-notifications">You have no notifications</div>
       ) : (
         <div className="notifications-list">
-          {notifications.map((notification) => (
-            <div key={notification._id} className="notification-item">
-              <div className="notification-content">
-                <div className="notification-header">
-                  <span className="notification-from">
-                    {notification.firstName}
-                  </span>
-                  <span className="notification-type">{notification.role}</span>
-                </div>
-
-                <div className="notification-details">
-                  <p className="notification-message">{notification.message}</p>
-                  <div className="notification-route">
-                    {notification.start?.coordinates &&
-                      notification.end?.coordinates &&
-                      (() => {
-                        const [lng1, lat1] = notification.start.coordinates;
-                        const [lng2, lat2] = notification.end.coordinates;
-                        return (
-                          <div className="notification-card">
-                            <p className="coords">
-                              From: {lat1.toFixed(6)}, {lng1.toFixed(6)}
-                              <br />
-                              To: {lat2.toFixed(6)}, {lng2.toFixed(6)}
-                            </p>
-                            <p className="role">Role: {notification.role}</p>
-                          </div>
-                        );
-                      })()}
+          {notifications.map((notification) => {
+            const status = getStatus(notification);
+            return (
+              <div
+                key={notification._id}
+                className="notification-item card shadow-sm mb-2"
+                style={{
+                  borderLeft: `5px solid ${status.color}`,
+                  background: "#fff",
+                  minWidth: 0,
+                  overflow: "hidden",
+                }}
+              >
+                <div
+                  className="notification-content card-body"
+                  style={{
+                    width: "100%",
+                    flex: 1,
+                    minWidth: 0,
+                    paddingRight: 0,
+                  }}
+                >
+                  <div className="notification-header d-flex justify-content-between align-items-center mb-2">
+                    <span
+                      className="notification-from fw-bold"
+                      style={{ color: "#e85f5c" }}
+                    >
+                      {notification.firstName}
+                    </span>
+                    <span className="notification-type badge bg-light text-dark border">
+                      {notification.role}
+                    </span>
                   </div>
-                  <p className="notification-ride-id">
-                    Ride ID: {notification.rideId}
-                  </p>
-                  {notification.requesterId && (
-                    <p className="notification-requester-id small text-muted">
-                      Requester ID: {notification.requesterId}
+                  <div className="notification-details">
+                    <p className="notification-message mb-1">
+                      {notification.message}
                     </p>
-                  )}
+                    <div className="notification-route mb-1">
+                      {notification.start?.coordinates &&
+                        notification.end?.coordinates &&
+                        (() => {
+                          const [lng1, lat1] = notification.start.coordinates;
+                          const [lng2, lat2] = notification.end.coordinates;
+                          return (
+                            <div className="notification-card">
+                              <span className="coords">
+                                <span className="fw-bold">From:</span>{" "}
+                                {lat1.toFixed(6)}, {lng1.toFixed(6)}
+                                <br />
+                                <span className="fw-bold">To:</span>{" "}
+                                {lat2.toFixed(6)}, {lng2.toFixed(6)}
+                              </span>
+                            </div>
+                          );
+                        })()}
+                    </div>
+                    <div className="d-flex align-items-center gap-2">
+                      <span className="notification-ride-id small text-muted">
+                        Ride ID: {notification.rideId}
+                      </span>
+                      {notification.requesterId && (
+                        <span className="notification-requester-id small text-muted">
+                          | Requester ID: {notification.requesterId}
+                        </span>
+                      )}
+                      <span
+                        className="badge ms-2"
+                        style={{
+                          background: status.color,
+                          color: "#fff",
+                          fontWeight: 500,
+                          fontSize: "0.85rem",
+                        }}
+                      >
+                        {status.label}
+                      </span>
+                    </div>
+                  </div>
                 </div>
+                {renderActionButtons(notification)}
               </div>
-
-              {renderActionButtons(notification)}
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>

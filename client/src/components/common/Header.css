@@ -1,40 +1,71 @@
-nav{
+.main-navbar {
   display: flex;
   justify-content: space-between;
   margin: 10px;
-  /* background-color: rgb(179, 196, 223); */
-  background-color: #cfcfdc;
-  border-radius: 10px;
-  padding: 20px;
+  background-color: rgba(255, 255, 255, 0.85);
+  border-radius: 12px;
+  padding: 18px 28px;
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   z-index: 10000000;
-  -webkit-backdrop-filter: blur(10px); /* Webkit-compatible blur for iPhone/Safari */
-  backdrop-filter: blur(10px); /* Standard blur for modern browsers */
-  -webkit-box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2); /* Webkit-compatible shadow for iPhone */
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2); /* Standard shadow */
-  background-color: rgba(206, 206, 224, 0.5); 
+  box-shadow: 0 2px 12px rgba(232, 95, 92, 0.06);
+  border: 1px solid #f2f2f2;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
+
+body,
+#root {
+  /* Add this to ensure the header doesn't overlay content */
+  padding-top: 0x;
+}
+
 @media screen and (max-width: 423px) {
-  nav {
-    justify-content: center; /* Center the items inside the nav */
+  .main-navbar {
+    justify-content: center;
+    padding: 10px 5px;
+  }
+  body,
+  #root {
+    padding-top: 40px;
   }
 }
 
-ul{
+ul {
   gap: 1.2rem;
   flex-wrap: wrap;
 }
-.nav-link{
+
+.nav-link {
   font-weight: bolder;
-  transition: 0.2s ease-in;
+  color: #222 !important;
+  transition: 0.2s;
+  border-radius: 8px;
+  padding: 6px 14px;
 }
-.nav-link:hover{
-  background-color: rgb(245, 246, 257);
-  border-radius: 10px;
-  padding-left: 10px;
-  padding-right: 10px;
-  
+
+.nav-link:hover,
+.nav-link.active {
+  background-color: #f8eaea;
+  color: #e85f5c !important;
+}
+
+.dropdown-menu {
+  border-radius: 12px;
+  border: 1px solid #f2f2f2;
+  box-shadow: 0 4px 16px rgba(232, 95, 92, 0.07);
+  min-width: 180px;
+}
+
+.dropdown-item:active,
+.dropdown-item:focus,
+.dropdown-item:hover {
+  background-color: #f8eaea;
+  color: #e85f5c;
+}
+
+.dropdown-divider {
+  margin: 0.3rem 0;
 }

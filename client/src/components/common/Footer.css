@@ -1,15 +1,18 @@
 /* Footer Styles */
 .bg-footer {
-  background: linear-gradient(to bottom, #ffffff, #ced7d3);
-  padding: 40px 0;
+  background: #fff;
+  padding: 40px 0 20px 0;
+  border-top: 1px solid #f2f2f2;
+  box-shadow: 0 -2px 12px rgba(232, 95, 92, 0.04);
 }
 
 .footer-heading h3 {
-  color: #000000;
+  color: #e85f5c;
   font-size: 2.2rem;
   font-weight: bold;
   margin-bottom: 5px;
   text-align: center;
+  letter-spacing: 1px;
 }
 
 .footer-heading p {
@@ -18,10 +21,11 @@
   text-align: center;
   margin-bottom: 20px;
 }
+
 .social-icons {
   display: flex;
   justify-content: center;
-  gap: 15px;
+  gap: 18px;
   margin-bottom: 10px;
   background-color: transparent;
 }
@@ -30,26 +34,27 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 50px;
-  height: 50px;
-  background-color: transparent;
-  border-radius: 12px;
-  transition: 0.3s ease-in-out;
+  width: 46px;
+  height: 46px;
+  background-color: #f8eaea;
+  border-radius: 50%;
+  transition: 0.2s;
+  color: #e85f5c;
+  font-size: 22px;
+  border: 1px solid #f2f2f2;
 }
 
 .social-icons a:hover {
-  transform: scale(1.2);
-}
-
-.social-icons svg {
-  color: #667085;
-  font-size: 24px;
+  background-color: #e85f5c;
+  color: #fff;
+  transform: scale(1.13);
+  border-color: #e85f5c;
 }
 
 .contact-info {
   text-align: center;
   color: #667085;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   margin-top: 15px;
 }
 .contact-info p {
@@ -59,29 +64,12 @@
   color: #667085;
 }
 .animated-text {
-  background-image: linear-gradient(
-    90deg,
-    #e85f5c,
-    #fcff4b,
-    #97b4d0,
-    #8789c0,
-    #e85f5c
-  );
-  background-size: 300% 100%;
-  background-clip: text;
-  -webkit-background-clip: text;
-  color: transparent;
-  animation: colorShift 3s infinite linear;
+  color: #e85f5c;
+  font-weight: bold;
+  background: none;
+  animation: none;
 }
 
-@keyframes colorShift {
-  0% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
-}
 .footer-bottom {
   margin-top: 10px;
   text-align: center;

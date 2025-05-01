@@ -1,5 +1,5 @@
-import React, { useContext, useRef } from "react";
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import React, { useContext } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { useClerk, useUser } from "@clerk/clerk-react";
 import "bootstrap/dist/css/bootstrap.css";
 import "bootstrap/dist/js/bootstrap.bundle.js";
@@ -9,11 +9,8 @@ import { userContextObj } from "../contexts/UserContext";
 function Header() {
   const { signOut } = useClerk();
   const { isSignedIn, user } = useUser();
-  // console.log(user);
   const { currentUser, setCurrentUser } = useContext(userContextObj);
   const navigate = useNavigate();
-  const location = useLocation();
-  // console.log("currentUser from header: ",currentUser)
 
   async function handleSignout() {
     await signOut();
@@ -24,30 +21,41 @@ function Header() {
   }
 
   return (
-    <nav className="d-flex align-items-center p-3 shadow-sm  flex-wrap">
+    <nav className="main-navbar d-flex align-items-center p-3 shadow-sm flex-wrap">
       <div className="fw-bold fs-4">
-        <Link to="/" className="text-decoration-none text-dark">
-          Ride Share
+        <Link
+          to="/"
+          className="text-decoration-none text-dark"
+          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+        >
+          <span style={{ color: "#e85f5c" }}>Ride Share</span>
         </Link>
       </div>
-
       <div>
         <ul className="navbar-nav d-flex flex-row align-items-center list-unstyled gap-3 m-0">
           <li className="nav-item">
-            <Link to="/" className="nav-link">
+            <Link
+              to="/"
+              className="nav-link"
+              onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+            >
               Home
             </Link>
           </li>
           <li className="nav-item">
             <a
-              onClick={() => window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" })}
+              onClick={() =>
+                window.scrollTo({
+                  top: document.body.scrollHeight,
+                  behavior: "smooth",
+                })
+              }
               className="nav-link"
               style={{ cursor: "pointer" }}
             >
               About
             </a>
           </li>
-
           {!isSignedIn && (
             <>
               <li className="nav-item">
@@ -71,7 +79,6 @@ function Header() {
               </li>
             </>
           )}
-
           {isSignedIn && (
             <>
               <li className="nav-item dropdown">
@@ -86,6 +93,10 @@ function Header() {
                     id="profileDropdown"
                     data-bs-toggle="dropdown"
                     aria-expanded="false"
+                    style={{
+                      border: "2px solid #e85f5c",
+                      boxShadow: "0 2px 8px rgba(232,95,92,0.08)",
+                    }}
                   />
                   <ul
                     className="dropdown-menu dropdown-menu-end mt-3"
@@ -132,13 +143,11 @@ function Header() {
                             Create Ride
                           </Link>
                         </li>
-
                         <li>
                           <hr className="dropdown-divider" />
                         </li>
                       </>
                     )}
-
                     {currentUser.role === "" && (
                       <li className="container-fluid">
                         Choose the role
