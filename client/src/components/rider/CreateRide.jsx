@@ -119,7 +119,7 @@ function CreateRide() {
       className="container py-4 d-flex justify-content-center align-items-center"
       style={{ minHeight: "80vh" }}
     >
-      <div className="card shadow p-4" style={{ maxWidth: 500, width: "100%" }}>
+      <div className="card shadow p-4" style={{ maxWidth: "90%", width: "100%" }}>
         <h2 className="mb-3 text-center" style={{ color: "#e85f5c" }}>
           Create Ride
         </h2>

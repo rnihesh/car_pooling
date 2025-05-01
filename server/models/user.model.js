@@ -1,6 +1,20 @@
 const { request } = require("express");
 const mongoose = require("mongoose");
 
+const numVehSchema = new mongoose.Schema(
+  {
+    regisNum: {
+      type: String,
+      required: true,
+    },
+    name: {
+      type: String,
+      required: true,
+    },
+  },
+  { strict: "throw" }
+);
+
 const notiSchema = new mongoose.Schema(
   {
     firstName: {
@@ -22,7 +36,7 @@ const notiSchema = new mongoose.Schema(
     role: {
       type: String,
       required: true,
-    }, 
+    },
     requesterId: {
       type: String,
       required: true,
@@ -30,14 +44,12 @@ const notiSchema = new mongoose.Schema(
     message: {
       type: String,
     },
-    accepted:{
+    accepted: {
       type: Boolean,
-
     },
     declined: {
-      type: Boolean
-    }
-
+      type: Boolean,
+    },
   },
   {
     strict: "throw",
@@ -62,6 +74,10 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+
+    gender: {
+      type: String,
+    },
     profileImageUrl: {
       type: String,
     },
@@ -79,6 +95,10 @@ const userSchema = new mongoose.Schema(
     },
     notifications: {
       type: [notiSchema],
+    },
+    regNums: {
+      type: [numVehSchema],
+      default: [],
     },
   },
   {

@@ -22,6 +22,7 @@ function Home() {
   const [role, setRole] = useState("");
   const navigate = useNavigate();
 
+  // console.log(user)
   // Initialize context from Clerk user
   useEffect(() => {
     if (isLoaded && user) {

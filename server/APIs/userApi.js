@@ -1,7 +1,6 @@
 const exp = require("express");
 const userApp = exp.Router();
 
-
 const expressAsyncHandler = require("express-async-handler");
 const createUser = require("./createUser.js");
 
@@ -554,31 +553,62 @@ userApp.get(
     try {
       const { baseID } = req.params;
       console.log("Searching rides with baseID:", baseID);
-      
+
       // Correct query: search for userData.baseID instead of baseID
       const rides = await Rides.find({ "userData.baseID": baseID });
 
       console.log(`Found ${rides.length} rides for user ${baseID}`);
-      
+
       if (rides && rides.length > 0) {
-        res.status(200).send({ 
-          message: "user rides", 
+        res.status(200).send({
+          message: "user rides",
           payload: rides,
-          count: rides.length
+          count: rides.length,
         });
       } else {
-        res.status(404).send({ 
+        res.status(404).send({
           message: "No rides found for this user",
-          baseID: baseID
+          baseID: baseID,
         });
       }
     } catch (error) {
       console.error("Error fetching specific rides:", error);
-      res.status(500).send({ 
-        message: "Error retrieving rides", 
-        error: error.message 
+      res.status(500).send({
+        message: "Error retrieving rides",
+        error: error.message,
       });
     }
+  })
+);
+
+// Add or update a user's vehicle registration number (regNums array)
+userApp.put(
+  "/updateRegNum",
+  expressAsyncHandler(async (req, res) => {
+    const { userId, regisNum, name } = req.body;
+    if (!userId || !regisNum || !name) {
+      return res
+        .status(400)
+        .send({ message: "userId, regisNum, and name are required" });
+    }
+    // Upsert: if regisNum exists, update name; else, add new
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).send({ message: "User not found" });
+
+    let updated = false;
+    if (!user.regNums) user.regNums = [];
+    for (let veh of user.regNums) {
+      if (veh.regisNum === regisNum) {
+        veh.name = name;
+        updated = true;
+        break;
+      }
+    }
+    if (!updated) {
+      user.regNums.push({ regisNum, name });
+    }
+    await user.save();
+    res.status(200).send({ message: "Registration updated", payload: user });
   })
 );
 
