@@ -19,7 +19,7 @@ function RootLayout({ pageProps }) {
       <PrimeReactProvider>
         <div>
           <Header {...pageProps} />
-          <div style={{ minHeight: "90vh", height: "100%" }}>
+          <div style={{ minHeight: "90vh", height: "100%" , marginTop: "100px"}}>
             <Outlet {...pageProps} />
           </div>
           <Footer {...pageProps} />

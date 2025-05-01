@@ -175,7 +175,7 @@ function CreateRide() {
         <MapContainer
           center={[17.4933, 78.3915]}
           zoom={13}
-          style={{ height: "300px", borderRadius:"10px" }}
+          style={{ height: "300px", borderRadius:"10px"}}
         >
           <TileLayer
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"

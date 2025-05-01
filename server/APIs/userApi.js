@@ -1,6 +1,7 @@
 const exp = require("express");
 const userApp = exp.Router();
 
+
 const expressAsyncHandler = require("express-async-handler");
 const createUser = require("./createUser.js");
 
@@ -300,12 +301,10 @@ userApp.get(
         notiRes.notifications?.length || 0
       );
 
-      res
-        .status(200)
-        .send({
-          message: "notifications",
-          payload: notiRes.notifications || [],
-        });
+      res.status(200).send({
+        message: "notifications",
+        payload: notiRes.notifications || [],
+      });
     } catch (err) {
       console.error("Error getting notifications:", err);
       res.status(500).send({ message: err.message });
@@ -525,6 +524,41 @@ userApp.delete(
     } catch (err) {
       console.error("Error deleting notification:", err);
       res.status(500).send({ message: err.message });
+    }
+  })
+);
+
+//fetch a specific user's rides
+userApp.get(
+  "/specific-rides/:baseID",
+  expressAsyncHandler(async (req, res) => {
+    try {
+      const { baseID } = req.params;
+      console.log("Searching rides with baseID:", baseID);
+      
+      // Correct query: search for userData.baseID instead of baseID
+      const rides = await Rides.find({ "userData.baseID": baseID });
+
+      console.log(`Found ${rides.length} rides for user ${baseID}`);
+      
+      if (rides && rides.length > 0) {
+        res.status(200).send({ 
+          message: "user rides", 
+          payload: rides,
+          count: rides.length
+        });
+      } else {
+        res.status(404).send({ 
+          message: "No rides found for this user",
+          baseID: baseID
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching specific rides:", error);
+      res.status(500).send({ 
+        message: "Error retrieving rides", 
+        error: error.message 
+      });
     }
   })
 );
