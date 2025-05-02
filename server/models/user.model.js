@@ -12,7 +12,7 @@ const numVehSchema = new mongoose.Schema(
       required: true,
     },
   },
-  { strict: "throw" }
+  { strict: "throw", timestamps: true }
 );
 
 const notiSchema = new mongoose.Schema(
@@ -53,6 +53,7 @@ const notiSchema = new mongoose.Schema(
   },
   {
     strict: "throw",
+    timestamps: true,
   }
 );
 
@@ -103,6 +104,7 @@ const userSchema = new mongoose.Schema(
   },
   {
     strict: "true",
+    timestamps: true,
   }
 );
 

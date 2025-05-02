@@ -16,6 +16,7 @@ const userSchema = new mongoose.Schema(
   },
   {
     strict: "throw",
+    timestamps: true,
   }
 );
 
@@ -32,19 +33,20 @@ const requestSchema = new mongoose.Schema(
     profileImageUrl: {
       type: String,
     },
-    request:{
+    request: {
       type: Boolean,
       default: false,
-      required: true
+      required: true,
     },
-    decline:{
+    decline: {
       type: Boolean,
       default: false,
-      required: true
-    }
+      required: true,
+    },
   },
   {
     strict: "throw",
+    timestamps: true,
   }
 );
 
