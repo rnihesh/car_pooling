@@ -105,14 +105,14 @@ userApp.put(
       return res.status(400).json({ message: "Ride is not active" });
     }
 
-    // const alreadyRequested = rideToUpdate.requests.some(
-    //   (req) => req.phNum === user.phNum
-    // );
-    // if (alreadyRequested) {
-    //   return res
-    //     .status(400)
-    //     .json({ message: "You have already requested this ride" });
-    // }
+     const alreadyRequested = rideToUpdate.requests.some(
+       (req) => req.phNum === user.phNum
+     );
+     if (alreadyRequested) {
+       return res
+         .status(400)
+         .json({ message: "You have already requested this ride" });
+     }
 
     if (rideToUpdate.requests.length >= rideToUpdate.nuSeats) {
       return res.status(400).json({ message: "No seats available" });
