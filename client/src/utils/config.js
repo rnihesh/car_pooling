@@ -5,5 +5,5 @@ const isDevelopment = import.meta.env.MODE === "development";
 export const getBaseUrl = () => {
   return isDevelopment
     ? "http://localhost:3000"
-    : "https://nihesh-ride-share.onrender.com"; // Backend URL on Render
+    : `${import.meta.env.VITE_RENDER_URL}`; // Backend URL on Render
 };

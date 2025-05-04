@@ -189,7 +189,7 @@ userApp.get(
 
       console.log(`Fixed aggregation found ${results.length} documents`);
 
-      // If we still don't have results, try a fallback approach
+      //if still not found, other way
       if (results.length === 0) {
         console.log("Trying fallback approach...");
 

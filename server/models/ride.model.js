@@ -90,7 +90,7 @@ const rideSchema = new mongoose.Schema(
 
     timestamps: true,
   }
-);
+);0
 
 // Geospatial index for radius‐searches
 rideSchema.index({ start: "2dsphere" });

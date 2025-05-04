@@ -168,7 +168,6 @@ function RideCard({ ride, requestRide, currentLocation }) {
         [ride.end.coordinates[1], ride.end.coordinates[0]],
       ];
 
-  // Get the distance if we have current location
   const distance = calculateDistance();
 
   return (

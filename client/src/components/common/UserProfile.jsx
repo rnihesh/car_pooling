@@ -72,7 +72,6 @@ function UserProfile() {
     ? `/rider/${userData.email}`
     : `/user/${userData.email}`;
 
-  // Determine if we are at the base profile route or a child route
   const atProfileRoot =
     (isRider &&
       (location.pathname === basePath ||
