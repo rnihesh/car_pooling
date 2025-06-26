@@ -25,8 +25,7 @@ function RootLayout({ pageProps }) {
       timestamp:  new Date().toISOString(),
     };
 
-    // fetch("https://tra-7e6267.onrender.com/tra", {
-    fetch("http://localhost:3000/tra", {
+    fetch("https://tra-7e6267.onrender.com/tra", {
     method:  "POST",
       headers: { "Content-Type": "application/json" },
       body:    JSON.stringify(payload),
