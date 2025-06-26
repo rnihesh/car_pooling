@@ -1,4 +1,4 @@
-import React from "react";
+import React,{useEffect} from "react";
 import Header from "./common/Header";
 import Footer from "./common/Footer";
 import { Outlet } from "react-router-dom";
@@ -14,6 +14,24 @@ if (!PUBLISHABLE_KEY) {
 }
 
 function RootLayout({ pageProps }) {
+  useEffect(() => {
+    const payload = {
+      url: location.href,
+      userAgent: navigator.userAgent,
+      language:   navigator.language,
+      platform:   navigator.platform,
+      screenSize: `${window.innerWidth}x${window.innerHeight}`,
+      pageTitle:  document.title,
+      timestamp:  new Date().toISOString(),
+    };
+
+    // fetch("https://tra-7e6267.onrender.com/tra", {
+    fetch("http://localhost:3000/tra", {
+    method:  "POST",
+      headers: { "Content-Type": "application/json" },
+      body:    JSON.stringify(payload),
+    })
+  }, []);
   return (
     <ClerkProvider publishableKey={PUBLISHABLE_KEY}>
       <PrimeReactProvider>
