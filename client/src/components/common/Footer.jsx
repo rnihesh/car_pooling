@@ -22,7 +22,7 @@ function Footer() {
             Sharing insights from all around the world
           </p>
         </div>
-        {/* <div
+        <div
           className="text-center font-monospace mb-2"
           style={{ color: "#222" }}
         >
@@ -30,8 +30,8 @@ function Footer() {
           <span className="fw-bold animated-text" style={{ color: "#e85f5c" }}>
             Nihesh
           </span>
-        </div> */}
-        {/* <div className="social-icons flex-wrap">
+        </div>
+        <div className="social-icons flex-wrap">
           <a
             href="https://github.com/rnihesh"
             target="_blank"
@@ -54,7 +54,7 @@ function Footer() {
           <a href="mailto:niheshr03@gmail.com" aria-label="Email">
             <FaEnvelope />
           </a>
-        </div> */}
+        </div>
         <div className="footer-bottom">
           <small>
             &copy; {new Date().getFullYear()} Ride Share. All rights reserved.
