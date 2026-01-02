@@ -80,9 +80,9 @@ function Home() {
     }
   }
 
-  async function onSelectRole(e) {
+  async function onSelectRole(selectedRole) {
     setError("");
-    const selectedRole = e.target.value;
+    setRole(selectedRole);
 
     // 1. build your userObj directly from currentUser + the freshly clicked role
     const userObj = {
@@ -163,10 +163,7 @@ function Home() {
   }
 
   return (
-    <div
-      className="container-fluid px-0"
-      style={{ minHeight: "100vh" }}
-    >
+    <div className="container-fluid px-0" style={{ minHeight: "100vh" }}>
       {/* Animated Hero Section */}
       {!isSignedIn && (
         <div className="position-relative" style={{ minHeight: "60vh" }}>
@@ -249,9 +246,12 @@ function Home() {
                 src={user.imageUrl}
                 width="110"
                 height="110"
-                className="rounded-circle mb-3 mb-md-0 border border-3"
+                className="rounded-circle mb-3 mb-md-0"
                 alt="User Profile"
-                style={{ boxShadow: "0 2px 12px rgba(232,95,92,0.12)" }}
+                style={{
+                  boxShadow: "0 2px 12px rgba(232,95,92,0.12)",
+                  border: "3px solid var(--gray-200)",
+                }}
               />
               <div className="user-details text-center text-md-start ms-md-4">
                 <h4 className="fw-bold mb-1" style={{ color: "#e85f5c" }}>
@@ -293,38 +293,66 @@ function Home() {
                   <button
                     key={r.key}
                     className="role-btn d-flex flex-column align-items-center p-4 btn btn-outline-dark shadow-sm"
-                    value={r.key}
-                    onClick={onSelectRole}
+                    onClick={() => onSelectRole(r.key)}
                     style={{
-                      minWidth: 180,
-                      borderColor: r.color,
-                      borderWidth: 2,
-                      borderRadius: 18,
-                      background: "white",
-                      transition: "0.2s",
+                      minWidth: 200,
+                      borderColor: role === r.key ? r.color : "#e0e0e0",
+                      borderWidth: role === r.key ? 3 : 2,
+                      borderRadius: 20,
+                      background: role === r.key ? `${r.color}10` : "white",
+                      transition: "all 0.3s ease",
+                      transform: role === r.key ? "scale(1.02)" : "scale(1)",
+                      boxShadow:
+                        role === r.key
+                          ? `0 8px 25px ${r.color}30`
+                          : "0 2px 8px rgba(0,0,0,0.08)",
+                    }}
+                    onMouseEnter={(e) => {
+                      if (role !== r.key) {
+                        e.currentTarget.style.borderColor = r.color;
+                        e.currentTarget.style.transform = "scale(1.02)";
+                        e.currentTarget.style.boxShadow = `0 6px 20px ${r.color}20`;
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (role !== r.key) {
+                        e.currentTarget.style.borderColor = "#e0e0e0";
+                        e.currentTarget.style.transform = "scale(1)";
+                        e.currentTarget.style.boxShadow =
+                          "0 2px 8px rgba(0,0,0,0.08)";
+                      }
                     }}
                   >
-                    <img
-                      alt={`${r.title} icon`}
-                      className="mb-2"
-                      width="70"
-                      src={r.icon}
+                    <div
+                      className="role-icon-wrapper mb-3 p-3 rounded-circle"
                       style={{
-                        filter: r.key === "rider" ? "none" : "grayscale(0.7)",
+                        background: `${r.color}15`,
+                        transition: "all 0.3s ease",
                       }}
-                    />
+                    >
+                      <img
+                        alt={`${r.title} icon`}
+                        width="60"
+                        height="60"
+                        src={r.icon}
+                        style={{
+                          filter: r.key === "rider" ? "none" : "grayscale(0.5)",
+                        }}
+                      />
+                    </div>
                     <span
                       style={{
-                        fontWeight: "bold",
+                        fontWeight: "700",
                         color: r.color,
-                        fontSize: "1.2rem",
+                        fontSize: "1.25rem",
+                        letterSpacing: "0.5px",
                       }}
                     >
                       {r.title}
                     </span>
                     <span
-                      className="text-muted"
-                      style={{ fontSize: "0.95rem" }}
+                      className="text-muted mt-1"
+                      style={{ fontSize: "0.9rem" }}
                     >
                       {r.desc}
                     </span>
@@ -343,7 +371,11 @@ function Home() {
         role="dialog"
         style={showPhoneModal ? { background: "rgba(248,249,250,0.9)" } : {}}
       >
-        <div className="modal-dialog pt-5 py-5" style={{marginTop: "100px"}} role="document">
+        <div
+          className="modal-dialog pt-5 py-5"
+          style={{ marginTop: "100px" }}
+          role="document"
+        >
           <form className="modal-content" onSubmit={handlePhoneSubmit}>
             <div className="modal-header">
               <h5 className="modal-title">Enter Your Phone Number</h5>

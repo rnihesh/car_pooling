@@ -1,1 +1,303 @@
 @import "leaflet/dist/leaflet.css";
+
+/* CreateRide Page Styles */
+.create-ride-container {
+  min-height: calc(100vh - 100px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+  background: var(--gray-50);
+}
+
+.create-ride-card {
+  width: 100%;
+  max-width: 600px;
+  background: white;
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--gray-100);
+  overflow: hidden;
+  animation: fadeIn 0.5s ease-out;
+}
+
+.create-ride-header {
+  padding: 1.5rem 2rem;
+  background: linear-gradient(
+    135deg,
+    var(--primary) 0%,
+    var(--primary-dark) 100%
+  );
+  color: white;
+}
+
+.create-ride-header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.create-ride-header p {
+  margin: 0.5rem 0 0;
+  opacity: 0.9;
+  font-size: 0.9375rem;
+}
+
+.create-ride-form {
+  padding: 2rem;
+}
+
+.form-group {
+  margin-bottom: 1.25rem;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: var(--gray-700);
+}
+
+.form-control,
+.form-select {
+  width: 100%;
+  padding: 0.875rem 1rem;
+  font-size: 0.9375rem;
+  border: 2px solid var(--gray-200);
+  border-radius: var(--radius-md);
+  background: white;
+  transition: all var(--transition);
+  outline: none;
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(232, 95, 92, 0.15);
+}
+
+.form-control::placeholder {
+  color: var(--gray-400);
+}
+
+.form-control[readonly] {
+  background: var(--gray-50);
+  color: var(--gray-600);
+  cursor: not-allowed;
+}
+
+/* Vehicle Type Selection */
+.vehicle-type-group {
+  display: flex;
+  gap: 1rem;
+}
+
+.vehicle-type-option {
+  flex: 1;
+  position: relative;
+}
+
+.vehicle-type-option input[type="radio"] {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.vehicle-type-option label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1.25rem;
+  background: var(--gray-50);
+  border: 2px solid var(--gray-200);
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.vehicle-type-option input[type="radio"]:checked + label {
+  background: rgba(232, 95, 92, 0.1);
+  border-color: var(--primary);
+}
+
+.vehicle-type-option label:hover {
+  border-color: var(--primary);
+}
+
+.vehicle-type-option .vehicle-icon {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.vehicle-type-option .vehicle-name {
+  font-weight: 600;
+  font-size: 0.9375rem;
+  color: var(--gray-700);
+}
+
+/* Seats Input */
+.seats-input-group {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.seats-input-group .form-control {
+  text-align: center;
+  font-weight: 600;
+  font-size: 1.125rem;
+}
+
+.seats-btn {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--gray-100);
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 1.25rem;
+  color: var(--gray-700);
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.seats-btn:hover {
+  background: var(--primary);
+  color: white;
+}
+
+/* Map Container */
+.map-wrapper {
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  border: 2px solid var(--gray-200);
+  margin-bottom: 1rem;
+}
+
+.map-wrapper .leaflet-container {
+  height: 250px;
+  width: 100%;
+}
+
+.map-instructions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: var(--gray-50);
+  border-radius: var(--radius-md);
+  font-size: 0.875rem;
+  color: var(--gray-600);
+}
+
+.map-instructions .icon {
+  color: var(--primary);
+}
+
+/* Location Display */
+.location-display {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  background: var(--gray-50);
+  border: 2px solid var(--gray-200);
+  border-radius: var(--radius-md);
+}
+
+.location-display .location-icon {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 1rem;
+}
+
+.location-display .location-icon.start {
+  background: rgba(16, 185, 129, 0.15);
+  color: var(--success);
+}
+
+.location-display .location-icon.end {
+  background: rgba(239, 68, 68, 0.15);
+  color: var(--danger);
+}
+
+.location-display .location-text {
+  flex: 1;
+  font-size: 0.875rem;
+  color: var(--gray-600);
+}
+
+.location-display .location-coords {
+  font-size: 0.75rem;
+  color: var(--gray-400);
+  font-family: monospace;
+}
+
+/* Submit Button */
+.submit-btn {
+  width: 100%;
+  padding: 1rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: white;
+  background: linear-gradient(
+    135deg,
+    var(--primary) 0%,
+    var(--primary-dark) 100%
+  );
+  border: none;
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  transition: all var(--transition);
+  box-shadow: 0 6px 20px rgba(232, 95, 92, 0.35);
+}
+
+.submit-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(232, 95, 92, 0.45);
+}
+
+.submit-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* Message Alert */
+.message-alert {
+  padding: 1rem 1.25rem;
+  border-radius: var(--radius-md);
+  font-weight: 500;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.message-alert.success {
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  color: var(--success);
+}
+
+.message-alert.info {
+  background: rgba(59, 130, 246, 0.1);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  color: var(--info);
+}
+
+.message-alert.error {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  color: var(--danger);
+}
